@@ -15,7 +15,6 @@ from pytest_bdd import scenarios, when, then, parsers
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-
 # Scenarios
 
 scenarios('../features/web.feature')
@@ -48,3 +47,5 @@ def search_results(browser, phrase):
     # Check search phrase
     search_input = browser.find_element(By.NAME, 'q')
     assert search_input.get_attribute('value') == phrase
+
+
