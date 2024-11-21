@@ -1,3 +1,5 @@
+# encoding=utf-8
+import sys
 import pandas as pd
 import re
 
@@ -77,7 +79,8 @@ def clear_expected_settlement_date(f_source: list):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('1732082274_44a7d149d2cf2d85b55c43c5998e66e9VsqDLzNI.csv')
+    csv_file = sys.argv[1]
+    df = pd.read_csv(csv_file)
     clear_refund_status(f_source=df["退款状态"])
     # print(refund_status)
     clear_order_status(f_source=df["订单状态"])
