@@ -63,12 +63,17 @@ def clear_order_status(f_source: list):
 def clear_expected_settlement_amount(f_source: list):
     # print(f_source)
     for f in f_source:
-        f = f.strip()
-        if is_float(f):
-            expected_settlement_amount.append(float(f))
-        else:
-            # print(f)
-            expected_settlement_amount.append(float("0.00"))
+        if isinstance(f, str):
+            f = f.strip()
+            if is_float(f):
+                expected_settlement_amount.append(float(f))
+            else:
+                # print(f)
+                expected_settlement_amount.append(float("0.00"))
+        elif isinstance(f, float):
+            expected_settlement_amount.append(f)
+        elif isinstance(f, int):
+            expected_settlement_amount.append(f)
 
 
 # 预计结算日期函数
@@ -80,6 +85,9 @@ def clear_expected_settlement_date(f_source: list):
 
 if __name__ == '__main__':
     csv_file = sys.argv[1]
+    # csv_file = '1732500247_bb0f5df36cbfc800c41d6375561e9998hmNrlShu.csv'
+    # csv_file = '1732082274_44a7d149d2cf2d85b55c43c5998e66e9VsqDLzNI.csv'
+    # csv_file = '1732500444_e9598cb423a30febe373644b80cf7af3txECmgYD.csv'
     df = pd.read_csv(csv_file)
     clear_refund_status(f_source=df["退款状态"])
     # print(refund_status)
