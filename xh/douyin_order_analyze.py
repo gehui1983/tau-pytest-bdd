@@ -40,6 +40,10 @@ data = {
 }
 
 
+def clear_field(field):
+    pass
+
+
 # 退款状态函数
 def clear_refund_status(f_source: list):
     for f in f_source:
@@ -79,15 +83,21 @@ def clear_expected_settlement_amount(f_source: list):
 # 预计结算日期函数
 def clear_expected_settlement_date(f_source: list):
     for f in f_source:
-        f = f.strip()
-        expected_settlement_date.append(f)
+        # print(f"{type(f)}---{f}")
+        if isinstance(f, str):
+            f = f.strip()
+            expected_settlement_date.append(f)
+        elif isinstance(f, (float, int)):
+            expected_settlement_date.append("无预计结算日期")
+        # elif isinstance(f, int):
+        #     expected_settlement_date.append(str(f).strip())
 
 
 if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        print(">>>>>请输入文件路径<<<<<")
+        exit(0)
     csv_file = sys.argv[1]
-    # csv_file = '1732500247_bb0f5df36cbfc800c41d6375561e9998hmNrlShu.csv'
-    # csv_file = '1732082274_44a7d149d2cf2d85b55c43c5998e66e9VsqDLzNI.csv'
-    # csv_file = '1732500444_e9598cb423a30febe373644b80cf7af3txECmgYD.csv'
     df = pd.read_csv(csv_file)
     clear_refund_status(f_source=df["退款状态"])
     # print(refund_status)
