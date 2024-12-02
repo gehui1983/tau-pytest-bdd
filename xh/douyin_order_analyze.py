@@ -1,8 +1,24 @@
 # encoding=utf-8
 import sys
+from datetime import datetime
+
 import pandas as pd
 import re
 
+import os
+import platform
+
+
+def get_os_type():
+    if os.name == 'nt':
+        return 'win'
+    elif os.name == 'posix':
+        if 'darwin' in platform.system().lower():
+            return 'macOS'
+        else:
+            return 'linux'
+    else:
+        return 'unknown'
 
 def is_float(s: str):
     pattern = r'-?\d+(\.\d+)?([eE][+-]?\d+)?$'
@@ -98,6 +114,22 @@ if __name__ == '__main__':
         print(">>>>>请输入文件路径<<<<<")
         exit(0)
     csv_file = sys.argv[1]
+    # csv_file = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
+    names=[]
+    if get_os_type() == "win":
+        names = csv_file.split("\\")
+    if get_os_type() == "linux":
+        names = csv_file.split("/")
+
+    if len(names)==0:
+        exit(0)
+
+    file_name = names[len(names)-1]
+    store_name = file_name.split('-')[0]
+    print(store_name)
+    dir_name = csv_file[0:len(csv_file) - len(file_name)]
+    print(dir_name)
+
     df = pd.read_csv(csv_file)
     clear_refund_status(f_source=df["退款状态"])
     # print(refund_status)
@@ -115,8 +147,19 @@ if __name__ == '__main__':
     df = df[(df["订单状态"] == "已发货") | (df["订单状态"] == "已完成")]
 
     su = df.groupby("预计结算日期")["预计结算金额"].sum()
-    print(str(su))
-    # print(su.axes[0])
+    result = {
+        "日期": list(su.index.values),
+        "金额": list(su.values)
+    }
+    result_pd = pd.DataFrame(result)
 
-    co = df['预计结算金额'].sum()
-    print(f"预计结算金额 总额: {co}")
+    print(result_pd)
+
+    print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
+    now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H-%M-%S')
+
+    with open(file=f"{dir_name}{store_name}-待结算订单汇总-{formatted_now}.txt", mode="wt") as f:
+        f.write(str(result_pd))
+        f.write(f"\r\n预计结算金额 总额: {result_pd['金额'].sum()}")
+

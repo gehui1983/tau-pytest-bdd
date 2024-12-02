@@ -1,8 +1,22 @@
+import os
+import platform
 import re
 import sys
+from datetime import datetime
+
 import pandas as pd
 from pandas import Series
 
+def get_os_type():
+    if os.name == 'nt':
+        return 'win'
+    elif os.name == 'posix':
+        if 'darwin' in platform.system().lower():
+            return 'macOS'
+        else:
+            return 'linux'
+    else:
+        return 'unknown'
 
 def is_float(s: str):
     pattern = r'-?\d+(\.\d+)?([eE][+-]?\d+)?$'
@@ -66,8 +80,6 @@ def order_fun(orderName: str):
 
 
 if __name__ == '__main__':
-    # delivery_name = "/Users/gehui/Downloads/包裹中心导出-2024-11-26 17-11-51.xlsx"
-    # order_name = "/Users/gehui/Downloads/1732612129_d0dfbc4c3c009f19957a2fcaf91098camlyBQLQo.csv"
     if len(sys.argv) < 2:
         print(">>>>>缺少参数<<<<<")
         print("参数格式如下：")
@@ -77,6 +89,25 @@ if __name__ == '__main__':
     print(delivery_name)
     order_name = sys.argv[2]
     print(order_name)
+
+    # delivery_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-包裹中心导出-2024-11-26 17-11-51.xlsx"
+    # order_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
+
+    names=[]
+    if get_os_type() == "win":
+        names = delivery_name.split("\\")
+    if get_os_type() == "linux":
+        names = delivery_name.split("/")
+
+    if len(names)==0:
+        exit(0)
+
+    file_name = names[len(names)-1]
+    store_name = file_name.split('-')[0]
+    print(store_name)
+    dir_name = delivery_name[0:len(delivery_name) - len(file_name)]
+    print(dir_name)
+
     deliver_fun(deliveryName=delivery_name)
     order_fun(orderName=order_name)
     assert len(data["订单编号"]) != len("发货时间")
@@ -92,6 +123,7 @@ if __name__ == '__main__':
 
     # print(str(su))
     # print(su.index.values)
+
     result = {
         "日期": list(su.index.values),
         "金额": list(su.values)
@@ -99,16 +131,25 @@ if __name__ == '__main__':
     result_pd = pd.DataFrame(result)
     print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
+    now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+    with open(file=f"{dir_name}{store_name}-待结算订单和包裹匹配汇总-{formatted_now}.txt", mode="wt") as f:
+        f.write(str(result_pd))
+        f.write(f"\n预计结算金额 总额: {result_pd['金额'].sum()}")
 
-    # start_date = '2024-11-08'
-    # end_date = '2024-11-15'
-    if len(sys.argv) != 5:
-        print("\n\r没有 开始日期 和 结束日期")
-        exit(0)
-    start_date = sys.argv[3]
-    end_date = sys.argv[4]
-    result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
 
-    print(f'\n从{start_date}到{end_date} 详情')
-    print(result_pd_0)
-    print(f'从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}', )
+        if len(sys.argv) == 5:
+
+            start_date = sys.argv[3]
+            end_date = sys.argv[4]
+
+            # start_date = '2024-11-08'
+            # end_date = '2024-11-15'
+            result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
+
+            print(f'\n从{start_date}到{end_date} 详情')
+            print(result_pd_0)
+            print(f'从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
+            f.write(f'\n从{start_date}到{end_date} 详情')
+            f.write(str(result_pd_0))
+            f.write(f'\n从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
