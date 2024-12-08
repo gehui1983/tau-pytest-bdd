@@ -101,13 +101,13 @@ def clear_expected_settlement_date(f_source: list):
     for f in f_source:
         # print(f"{type(f)}---{f}")
         if isinstance(f, str):
-            f = f.strip()
+            f = f.strip().replace("/","-")
+            # print(f)
             expected_settlement_date.append(f)
         elif isinstance(f, (float, int)):
             expected_settlement_date.append("无预计结算日期")
         # elif isinstance(f, int):
         #     expected_settlement_date.append(str(f).strip())
-
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
@@ -155,11 +155,23 @@ if __name__ == '__main__':
 
     print(result_pd)
 
+
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H-%M-%S')
 
     with open(file=f"{dir_name}{store_name}-待结算订单汇总-{formatted_now}.txt", mode="wt") as f:
+        f.write(f"总计：\r\n")
         f.write(str(result_pd))
         f.write(f"\r\n预计结算金额 总额: {result_pd['金额'].sum()}")
+        if len(sys.argv)==4:
+            start_date = sys.argv[2]
+            end_date = sys.argv[3]
+            f.write(f"\r\n\r\n 从{start_date}到{end_date}：\r\n")
+            result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
+            print(result_pd_0)
+            print(f"\r\n{start_date}到{end_date}预计结算金额: {result_pd_0['金额'].sum()}")
+            f.write(str(result_pd_0))
+            f.write(f"\r\n{start_date}到{end_date}预计结算金额: {result_pd_0['金额'].sum()}")
+
 
