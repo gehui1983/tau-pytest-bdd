@@ -14,7 +14,7 @@ class Store_apply:
                                 password='Xh1016!@#')
         self.cur = self.db.cursor()
 
-    def sql_execute(self, db_name: str = 'fin_portal_pre'):
+    def sql_execute(self, db_name: str = 'fin_portal'):
         try:
             self.cur.execute(
                 f"""select id,enterprise_id from `{db_name}`.`crm_store` cs where cs.code = "{self.store_ids}";""")
@@ -87,5 +87,15 @@ if __name__ == '__main__':
     version = dt_object.strftime('%Y%m%d')
     apply_code = 'SQ-' + dt_object.strftime('%Y%m%d%H%M-%S')+'00'
     print(f'{apply_code}---{version}')
-    p1 = Store_apply(store_ids="asdpoas01", apply_code=apply_code, version=version)
+    p1 = Store_apply(store_ids="ksxd_test001", apply_code=apply_code, version=version)
     p1.sql_execute(db_name='fin_portal')
+
+
+# clearing_info.status=1 还款中
+# clearing_info.status=2 逾期
+# clearing_info.status=3 提前结清
+# clearing_info.status=4 到期结清
+# clearing_info.status=5 逾期结清
+# 一天 只能放款一次
+# 同一个店铺， 之前存在一笔没有还清的代码， 目前是可以在进行放款
+#

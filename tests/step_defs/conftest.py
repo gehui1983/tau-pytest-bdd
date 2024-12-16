@@ -1,11 +1,10 @@
-import pytest
-
 from pytest_bdd import given
-from selenium import webdriver
-
-
 # Constants
-
+import pytest
+from selenium import webdriver
+from selenium.webdriver import Proxy
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.proxy import ProxyType
 DUCKDUCKGO_HOME = 'https://duckduckgo.com/'
 
 
@@ -33,3 +32,35 @@ def browser():
 @given('the DuckDuckGo home page is displayed', target_fixture='ddg_home')
 def ddg_home(browser):
     browser.get(DUCKDUCKGO_HOME)
+
+
+
+
+
+@pytest.fixture
+def chrome_browser():
+    myproxy = "192.168.3.241:8888"
+    proxy = Proxy({
+        'proxyType': ProxyType.MANUAL,
+        'httpProxy': myproxy,
+        'ftpProxy': myproxy,
+        "sslProxy": myproxy,
+        'noProxy': 'localhost,127.0.0.1'
+    })
+    options = ChromeOptions()
+    options.set_capability("browserVersion", "131.0")
+    options.set_capability("browserName", "chrome")
+    options.set_capability("proxy", proxy.to_capabilities())
+    options.set_capability("se:downloadsEnabled", False)
+    # se:downloadsEnabled
+    options.add_experimental_option("prefs", {
+        "download.default_directory": "/tmp/",
+        "download.prompt_for_download": False,
+        "profile.default_content_settings.popups": 0,
+        "download.directory_upgrade": True,
+        "safebrowsing.enabled": True
+    })
+    with webdriver.Remote(command_executor='http://localhost:4444/wd/hub', options=options) as driver:
+        driver.maximize_window()
+        driver.implicitly_wait(time_to_wait=3.0)
+        yield driver

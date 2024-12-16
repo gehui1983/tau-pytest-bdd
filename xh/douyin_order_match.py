@@ -7,6 +7,7 @@ from datetime import datetime
 import pandas as pd
 from pandas import Series
 
+
 def get_os_type():
     if os.name == 'nt':
         return 'win'
@@ -17,6 +18,7 @@ def get_os_type():
             return 'linux'
     else:
         return 'unknown'
+
 
 def is_float(s: str):
     pattern = r'-?\d+(\.\d+)?([eE][+-]?\d+)?$'
@@ -93,16 +95,16 @@ if __name__ == '__main__':
     # delivery_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-包裹中心导出-2024-11-26 17-11-51.xlsx"
     # order_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
 
-    names=[]
+    names = []
     if get_os_type() == "win":
         names = delivery_name.split("\\")
     if get_os_type() == "linux":
         names = delivery_name.split("/")
 
-    if len(names)==0:
+    if len(names) == 0:
         exit(0)
 
-    file_name = names[len(names)-1]
+    file_name = names[len(names) - 1]
     store_name = file_name.split('-')[0]
     print(store_name)
     dir_name = delivery_name[0:len(delivery_name) - len(file_name)]
@@ -137,9 +139,7 @@ if __name__ == '__main__':
         f.write(str(result_pd))
         f.write(f"\n预计结算金额 总额: {result_pd['金额'].sum()}")
 
-
         if len(sys.argv) == 5:
-
             start_date = sys.argv[3]
             end_date = sys.argv[4]
 
