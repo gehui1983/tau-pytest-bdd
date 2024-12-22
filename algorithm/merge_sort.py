@@ -1,7 +1,7 @@
 from typing import List
 
 
-def merge_sort(li):
+def merge_sort(li: List[object]) -> List[object]:
     length = len(li)
     if length <= 1:
         return li
@@ -11,7 +11,7 @@ def merge_sort(li):
     return sort(left, right)
 
 
-def sort(left, right):
+def sort(left: List[object], right: List[object]) -> List[object]:
     result = list()
     li = ri = 0
     while li < len(left) and ri < len(right):

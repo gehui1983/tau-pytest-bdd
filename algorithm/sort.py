@@ -1,18 +1,18 @@
-from typing import List, Any
+from typing import List
 
 
-def merge_sort(lst: List[int]):
-    if len(lst) <= 1:
-        return lst
-    mid = len(lst) // 2
-    left = merge_sort(lst[:mid])
+def merge_sort(li: List[object]) -> List[object]:
+    if len(li) <= 1:
+        return li
+    mid = len(li) // 2
+    left = merge_sort(li[:mid])
     # print(left)
-    right = merge_sort(lst[mid:])
+    right = merge_sort(li[mid:])
     # print(right)
     return merge(left, right)
 
 
-def merge(left: List[int], right: List[int]):
+def merge(left: List[object], right: List[object]) -> List[object]:
     result = []
     i = j = 0
     while i < len(left) and j < len(right):
@@ -27,7 +27,8 @@ def merge(left: List[int], right: List[int]):
     return result
 
 
-def mao_pao(li: List[int]):
+def mao_pao(li: List[object]) -> List[object]:
+
     for j in range(0, len(li)):
         for i in range(0, len(li) - j - 1):
             if li[i] < li[i + 1]:
@@ -37,7 +38,7 @@ def mao_pao(li: List[int]):
     return li
 
 
-def select_sort(li: List[int]):
+def select_sort(li: List[object]) -> List[object]:
     for j in range(0, len(li)):
         for i in range(j + 1, len(li)):
             if li[j] < li[i]:
@@ -47,7 +48,7 @@ def select_sort(li: List[int]):
     return li
 
 
-def insert_sort(li: List[int]):
+def insert_sort(li: List[object]) -> List[object]:
     for j in range(0, len(li)):
         i = 0
         while j > i:
@@ -63,7 +64,7 @@ def insert_sort(li: List[int]):
 if __name__ == '__main__':
     lst = [7, 10, 8, 9, 11, 22, 21, 23, 1, 3]
 
-    print(merge_sort(lst))
+    print(mao_pao(lst))
 
 
     class ab:
