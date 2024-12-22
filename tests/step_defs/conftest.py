@@ -39,7 +39,7 @@ def ddg_home(browser):
 
 @pytest.fixture
 def chrome_browser():
-    myproxy = "192.168.3.241:8888"
+    myproxy = "192.168.3.241:7890"
     proxy = Proxy({
         'proxyType': ProxyType.MANUAL,
         'httpProxy': myproxy,

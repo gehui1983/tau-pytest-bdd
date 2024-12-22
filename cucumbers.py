@@ -3,6 +3,7 @@ This module contains a simple class modeling a cucumber basket.
 Cucumbers may be added or removed from the basket.
 The basket has a maximum size, however.
 """
+import sys
 
 
 class CucumberBasket:
@@ -43,3 +44,7 @@ class CucumberBasket:
         if new_count < 0:
             raise ValueError("Attempted to remove too many cucumbers")
         self._count = new_count
+
+
+if __name__ == '__main__':
+    print(sys.path_hooks[0])

@@ -10,11 +10,11 @@ class Store_apply:
         self.store_ids = store_ids  # 店铺ID 唯一
         self.apply_code = apply_code  # 进件 code 唯一
         self.version = version
-        self.db = mysql.connect(host="rm-bp19bzj5mc526iot2ho.mysql.rds.aliyuncs.com", port=3306, user='xhdigit_dev',
-                                password='Xh1016!@#')
+        self.db = mysql.connect(host="rm-bp12358fo85u1lm5o6o.mysql.rds.aliyuncs.com", port=3306, user='xhadmin',
+                                password='test#202412')
         self.cur = self.db.cursor()
 
-    def sql_execute(self, db_name: str = 'fin_portal'):
+    def sql_execute(self, db_name: str = 'fin_portal_pre'):
         try:
             self.cur.execute(
                 f"""select id,enterprise_id from `{db_name}`.`crm_store` cs where cs.code = "{self.store_ids}";""")
@@ -87,8 +87,8 @@ if __name__ == '__main__':
     version = dt_object.strftime('%Y%m%d')
     apply_code = 'SQ-' + dt_object.strftime('%Y%m%d%H%M-%S')+'00'
     print(f'{apply_code}---{version}')
-    p1 = Store_apply(store_ids="ksxd_test001", apply_code=apply_code, version=version)
-    p1.sql_execute(db_name='fin_portal')
+    p1 = Store_apply(store_ids="2184094272730700", apply_code=apply_code, version=version)
+    p1.sql_execute(db_name='fin_portal_pre')
 
 
 # clearing_info.status=1 还款中

@@ -4,21 +4,21 @@ from datetime import datetime
 
 import requests
 
-json_data={
-    "code": "risk.pre.loan.20241130213496", #路由，执行顺序
-    "params":{
-        "platformType":0,
-        "storeCode":"dy001",
-        "companyCode":"001"
+json_data = {
+    "code": "risk.pre.loan.20241130213496",  # 路由，执行顺序
+    "params": {
+        "platformType": 0,
+        "storeCode": "dy001",
+        "companyCode": "001"
     }
 }
-address = "http://121.40.223.55:7331"
+address = "https://rde.xhdigit.com"
 result = requests.post(url=f"{address}/pandora-gateway/api/risk/check/execute", json=json_data)
 print(result.headers)
 t = result.text
 print(t)
 json_d = json.loads(t)
-data_format=json.dumps(json_d, indent=4, ensure_ascii=False)
+data_format = json.dumps(json_d, indent=4, ensure_ascii=False)
 print(data_format)
 now = datetime.now()
 formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -28,21 +28,19 @@ with open(file=f"{formatted_now}.txt", mode="wt") as f:
 # RC_2_DPYJGZ_1733209188848
 # 店铺预警规则
 
-{"errCode":1000,
- "errMsg":"success",
- "result":{
-     "decisionCode":"2000",
-     "decisionText":"店铺不可合作",
-     "decisionType":1,
-     "extraMap":{
-         "suggest":"2000",
-         "riskType":"2000",
-         "decision":"2000",
-         "priority":"500",
-         "moreSuggest":"5000"}
- },"success":True}
-
-
+{"errCode": 1000,
+ "errMsg": "success",
+ "result": {
+     "decisionCode": "2000",
+     "decisionText": "店铺不可合作",
+     "decisionType": 1,
+     "extraMap": {
+         "suggest": "2000",
+         "riskType": "2000",
+         "decision": "2000",
+         "priority": "500",
+         "moreSuggest": "5000"}
+ }, "success": True}
 
 # {
 # 	"errCode":1000,
@@ -99,4 +97,3 @@ with open(file=f"{formatted_now}.txt", mode="wt") as f:
 # storeExperienceScore	            店铺体验分				23
 # platformType			            开店平台					0
 # storeCode				            店铺ID					dy001
-
