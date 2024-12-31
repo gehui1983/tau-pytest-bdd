@@ -30,7 +30,7 @@ CONVERTERS = {
     target_fixture='ddg_response',
     converters=CONVERTERS)
 def ddg_response(phrase):
-    params = {'q': phrase, 'format': 'json'}
+    params = {'length': phrase, 'format': 'json'}
     response = requests.get(DUCKDUCKGO_API, params=params)
     return response
 

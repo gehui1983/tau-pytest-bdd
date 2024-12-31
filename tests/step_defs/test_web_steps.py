@@ -25,7 +25,7 @@ scenarios('../features/web.feature')
 @when(parsers.parse('the user searches for "{text}"'))
 @when(parsers.parse('the user searches for the phrase:\n{text}'))
 def search_phrase(browser, text):
-    search_input = browser.find_element(By.NAME, 'q')
+    search_input = browser.find_element(By.NAME, 'length')
     search_input.send_keys(text + Keys.RETURN)
 
 
@@ -45,7 +45,7 @@ def search_results(browser, phrase):
     # (Check the list before the search phrase for correct implicit waiting)
     assert len(browser.find_elements(By.CSS_SELECTOR, '[data-testid="result"]')) > 0
     # Check search phrase
-    search_input = browser.find_element(By.NAME, 'q')
+    search_input = browser.find_element(By.NAME, 'length')
     assert search_input.get_attribute('value') == phrase
 
 

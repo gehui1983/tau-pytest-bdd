@@ -50,7 +50,7 @@ def chrome_browser():
     options = ChromeOptions()
     options.set_capability("browserVersion", "131.0")
     options.set_capability("browserName", "chrome")
-    options.set_capability("proxy", proxy.to_capabilities())
+    # options.set_capability("proxy", proxy.to_capabilities())
     options.set_capability("se:downloadsEnabled", False)
     # se:downloadsEnabled
     options.add_experimental_option("prefs", {

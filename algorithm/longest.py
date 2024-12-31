@@ -90,7 +90,7 @@ def lengthOfLongestSubstring(ss: str):
 
 if __name__ == "__main__":
     s = "geeksforgeeks"
-    s = "AAA"
+    # s = "AAA"
     # s = "GEEKSFORGEEKS"
     # s = "ABCDEFGG"
     # s = ''
