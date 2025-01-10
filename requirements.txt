@@ -2,6 +2,5 @@ pytest==7.4.0
 pytest-bdd==7.0.0
 requests==2.31.0
 selenium==4.27.0
-
 pymysql~=1.0.2
 pandas~=1.5.3

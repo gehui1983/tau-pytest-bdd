@@ -1,5 +1,4 @@
 import json
-
 import brotli
 import pymysql as mysql
 
@@ -11,12 +10,13 @@ class BuyIn:
                                 password='admin', database="CRAWL_DB")
         self.cur = self.db.cursor()
 
-    def sql_execute(self, crawl_data_id=0):
+    def sql_execute_01(self, crawl_data_id=0):
         no_decode_list = list()
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id > %s'''
-        sql_insert = '''INSERT INTO CRAWL_DB.BUY_IN (source_id,shop_id, shop_name,exp_score,product_id, title, 
-        detail_url, recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio, kol_num, axis) VALUES 
-                (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+        sql_insert = '''INSERT INTO CRAWL_DB.BUY_IN_01 (source_id,shop_id, shop_name,exp_score,product_id, title, 
+                        detail_url, recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio, 
+                        kol_num, axis, promotion_id, commodity_id) VALUES 
+                (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
         path = '/pc/selection/common/material_list'
         try:
@@ -44,6 +44,12 @@ class BuyIn:
                     except KeyError:
                         exp_score = 0
                     product_id = dict_res['product_id']
+                    promotion_id = dict_res['promotion_id']
+                    commodity_id = ''
+                    try:
+                        commodity_id = dict_res['other_info']['data_report']['commodity_id']
+                    except KeyError:
+                        commodity_id = promotion_id
                     base_info = dict_res['base_info']
                     title = base_info['title']
                     detail_url = base_info['detail_url']
@@ -71,10 +77,10 @@ class BuyIn:
                     axis = str(manage_info['axis'])
                     list_values.append((source_id, shop_id, shop_name, exp_score, product_id, title, detail_url,
                                         recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio,
-                                        kol_num, axis))
+                                        kol_num, axis, promotion_id, commodity_id))
                     print(list_values)
-                # self.cur.executemany(sql_insert, list_values)
-                # self.cur.connection.commit()
+                self.cur.executemany(sql_insert, list_values)
+                self.cur.connection.commit()
                 # break
 
         except mysql.MySQLError as e:
@@ -85,11 +91,33 @@ class BuyIn:
             print("执行完毕")
             print(no_decode_list)
 
+    def sql_execute_02(self, path='/pc/selection/decision/pack_detail', crawl_data_id=6477):
+        sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id = %s'''
+        try:
+            self.cur.execute(sql_select, [path, crawl_data_id])
+            data_id, response_body = self.cur.fetchone()
+            print(response_body)
+            try:
+                compressed_data = brotli.decompress(response_body)
+                print(compressed_data)
+            except brotli.error:
+                print("解压失败")
+                print(brotli.error)
+        except mysql.MySQLError as e:
+            print(e.args)
+        finally:
+            self.cur.close()
+            self.db.close()
+            print("执行完毕")
+
+# -- 分组后,查询,记录数量
+# select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
 # 以下是不能解压缩
 # [797, 1292, 1297, 1309, 1314, 1315, 1317, 1319, 1323, 1324, 1326, 1330, 1331, 1332, 1333, 1334, 1335, 1336, 1337,
 # 3366]
+# [4726, 4768, 4850, 5233, 5317, 5359, 5401, 5826, 5940]
 
 
 if __name__ == '__main__':
     buy = BuyIn()
-    buy.sql_execute()
+    buy.sql_execute_02()
