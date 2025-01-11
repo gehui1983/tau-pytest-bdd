@@ -17,10 +17,13 @@ class Store_apply:
     def sql_execute(self, db_name: str = 'fin_portal_pre'):
         try:
             self.cur.execute(
-                f"""select id,enterprise_id from `{db_name}`.`crm_store` cs where cs.code = "{self.store_ids}";""")
-            store_id, enterprise_id = self.cur.fetchone()
-            print(f'store_id={store_id}--enterprise_id={enterprise_id}')
+                f"""select id from `{db_name}`.`crm_store` cs where cs.code = "{self.store_ids}";""")
+            store_id = self.cur.fetchone()[0]
+            print(f'store_id={store_id}')
             # 根据 enterprise_id 查询 code（统一信用代码）
+            self.cur.execute(f'''select enterprise_id from fin_portal_pre.crm_enterprise_store_rel cesr 
+                            where cesr.store_id = {store_id}''')
+            enterprise_id = self.cur.fetchone()[0]
             self.cur.execute(f"""
             select code from `{db_name}`.`crm_enterprise` ce where ce.id = {enterprise_id};;
             """)
@@ -28,8 +31,13 @@ class Store_apply:
             print(f'enterprise_cert_no={enterprise_cert_no}')
             self.cur.execute(f"""
             INSERT INTO `{db_name}`.`crm_apply`
-            ( `enterprise_id`, `enterprise_cert_no`, `store_id`, `code`, `credit_amount`, `loan_amount`, `billing_method`, `cust_rate`, `latest_shipped_date`, `status`, `apply_date`, `payment_date`, `version`, `financing_term`, `applicant`, `loan_operator`, `audit_status`, `is_deleted`, `created`, `updated`)
-            VALUES ({enterprise_id}, "{enterprise_cert_no}", {store_id}, "{self.apply_code}", 2117.00, null, 0, 1.000000, '2024-11-06 00:19:02', null, null, null, "{self.version}", 15, null, null, null, 0, now(), now());
+            ( `enterprise_id`, `enterprise_cert_no`, `store_id`, `code`, `credit_amount`, `loan_amount`, 
+            `billing_method`, `cust_rate`, `latest_shipped_date`, `status`, `apply_date`, `payment_date`, 
+            `version`, `financing_term`, `applicant`, `loan_operator`, `audit_status`, `is_deleted`, 
+            `created`, `updated`)
+            VALUES ({enterprise_id}, "{enterprise_cert_no}", {store_id}, "{self.apply_code}", 
+            2117.00, null, 0, 1.000000, '2024-11-06 00:19:02', null, null, null, "{self.version}", 
+            15, null, null, null, 0, now(), now());
             """)
             self.cur.connection.commit()
 
@@ -59,7 +67,9 @@ class Store_apply:
                 (apply_id, store_id, '6935687169099175104', '2024-10-31 06:35:50', 1, 139.90, 0.00)
             ]
             sql = f"""
-            INSERT INTO `{db_name}`.`crm_apply_order_rel` ( `apply_id`, `store_id`, `order_id`, `shipped_date`, `status`, `estimated_amount`, `settlement_amount`, `settlement_updated`, `created`, `updated`) VALUES ( %s, %s, %s, %s, %s, %s, %s, NULL, now(), now())
+            INSERT INTO `{db_name}`.`crm_apply_order_rel` ( `apply_id`, `store_id`, `order_id`, `shipped_date`, 
+            `status`, `estimated_amount`, `settlement_amount`, `settlement_updated`, `created`, `updated`) 
+                    VALUES ( %s, %s, %s, %s, %s, %s, %s, NULL, now(), now())
             """
             self.cur.executemany(sql, data_to_insert)
             self.cur.connection.commit()
@@ -87,7 +97,7 @@ if __name__ == '__main__':
     version = dt_object.strftime('%Y%m%d')
     apply_code = 'SQ-' + dt_object.strftime('%Y%m%d%H%M-%S')+'00'
     print(f'{apply_code}---{version}')
-    p1 = Store_apply(store_ids="2184094272730700", apply_code=apply_code, version=version)
+    p1 = Store_apply(store_ids="test-gehui-198310", apply_code=apply_code, version=version)
     p1.sql_execute(db_name='fin_portal_pre')
 
 
