@@ -65,7 +65,10 @@ class BuyIn:
                     cos_info = dict_res['cos_info']
                     cos_fee = cos_info['cos_fee']
                     cos_ratio = cos_info['cos_ratio']
-                    cos_type = cos_info['cos_type']
+                    try:
+                        cos_type = cos_info['cos_type']
+                    except KeyError:
+                        cos_type = -1
                     manage_info = dict_res['manage_info']
                     sales = manage_info['sales']
                     good_ratio = ''
@@ -79,8 +82,8 @@ class BuyIn:
                                         recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio,
                                         kol_num, axis, promotion_id, commodity_id))
                     print(list_values)
-                self.cur.executemany(sql_insert, list_values)
-                self.cur.connection.commit()
+                # self.cur.executemany(sql_insert, list_values)
+                # self.cur.connection.commit()
                 # break
 
         except mysql.MySQLError as e:
@@ -91,7 +94,7 @@ class BuyIn:
             print("执行完毕")
             print(no_decode_list)
 
-    def sql_execute_02(self, path='/pc/selection/decision/pack_detail', crawl_data_id=6477):
+    def sql_execute_02(self, path='/pc/selection/common/material_list', crawl_data_id=6477):
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id = %s'''
         try:
             self.cur.execute(sql_select, [path, crawl_data_id])
@@ -116,8 +119,11 @@ class BuyIn:
 # [797, 1292, 1297, 1309, 1314, 1315, 1317, 1319, 1323, 1324, 1326, 1330, 1331, 1332, 1333, 1334, 1335, 1336, 1337,
 # 3366]
 # [4726, 4768, 4850, 5233, 5317, 5359, 5401, 5826, 5940]
+# [7845, 7919, 8105, 9026]
+# [10047, 10225, 10299, 10844, 10926, 11414]
+# [13166, 13224, 14360]
 
 
 if __name__ == '__main__':
     buy = BuyIn()
-    buy.sql_execute_02()
+    buy.sql_execute_01(crawl_data_id=12915)

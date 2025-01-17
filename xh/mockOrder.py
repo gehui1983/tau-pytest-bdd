@@ -97,12 +97,13 @@ if __name__ == '__main__':
     version = dt_object.strftime('%Y%m%d')
     apply_code = 'SQ-' + dt_object.strftime('%Y%m%d%H%M-%S')+'00'
     print(f'{apply_code}---{version}')
-    p1 = Store_apply(store_ids="test-gehui-198310", apply_code=apply_code, version=version)
+    p1 = Store_apply(store_ids="test-pingduo-id-0001", apply_code=apply_code, version=version)
     p1.sql_execute(db_name='fin_portal_pre')
 
 
+
 # clearing_info.status=1 还款中
-# clearing_info.status=2 逾期
+# clearing_info.status=2 逾期未结清
 # clearing_info.status=3 提前结清
 # clearing_info.status=4 到期结清
 # clearing_info.status=5 逾期结清

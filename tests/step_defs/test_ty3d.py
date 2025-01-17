@@ -51,5 +51,5 @@ class TestTy3d():
     self.driver.execute_script("window.scrollTo(0,0)")
     self.driver.find_element(By.CSS_SELECTOR, ".panel_footer > .ant-btn:nth-child(2) > .ng-star-inserted").click()
     self.driver.find_element(By.CSS_SELECTOR, ".download .ng-star-inserted").click()
-    self.driver.find_element(By.CSS_SELECTOR, ".file-download:nth-child(1)").click()
+    self.driver.find_element(By.CSS_SELECTOR, ".files-download:nth-child(1)").click()
   
