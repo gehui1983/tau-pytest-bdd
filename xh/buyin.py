@@ -116,6 +116,7 @@ class BuyIn:
             self.db.close()
             print("执行完毕")
 
+
 # -- 分组后,查询,记录数量
 # select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
 # 以下是不能解压缩
@@ -126,25 +127,22 @@ class BuyIn:
 # [10047, 10225, 10299, 10844, 10926, 11414]
 # [13166, 13224, 14360]
 # [14552, 14699, 14760, 14874, 16809, 16825, 17462]
-
+# [19809, 19868, 20108, 20147, 20456, 20485, 20689, 21746, 22587]
 
 if __name__ == '__main__':
     buy = BuyIn()
-    buy.sql_execute_01(crawl_data_id=17794)
+    buy.sql_execute_01(crawl_data_id=22987)
 
-
-
-
-# SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 17794;
+# SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 19739;
 # select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN_01 bi group by bi.shop_id) a;
-# -- 最大店铺数量: 14618
-# -- source_id:17794
+# -- 最大店铺数量: 15238
+# -- source_id:19739
 # -- 1, source_id=3370, 爬取=3103条，增加店铺数量：9411-7407=2004
 # -- 2, source_id=6467, 爬取=3204条, 增加店铺数量:10796-9411=1385
 # -- 3, source_id=12915 爬取=3240条, 增加店铺数量:12448-10796=1652
 # -- 4, source_id=14373 爬取=1458条, 增加店铺数量:13444-12448=996
-# -- 4, source_id=17794 爬取=3421条, 增加店铺数量:14618-13444=1174
-#
+# -- 5, source_id=17794 爬取=3421条, 增加店铺数量:14618-13444=1174
+# -- 6, source_id=19739 爬取=1945条, 增加店铺数量:15238-14618=620
 # SELECT * from CRAWL_DATA cd WHERE cd.id = 4726;
 #
 # select MAX(bi.source_id) from CRAWL_DB.BUY_IN_01 bi;

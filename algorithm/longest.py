@@ -73,17 +73,17 @@ def lengthOfLongestSubstring(ss: str):
     right = 0
     max_len = 0
     while right < n and left < n:
-        # print(f'n={n}')
+        # print(files'n={n}')
         if ss[right] not in char_set:
             char_set.add(ss[right])
             max_len = max(max_len, right - left + 1)
             right += 1
-            # print(f'right={right}')
+            # print(files'right={right}')
 
         else:
             char_set.remove(ss[left])
             left += 1
-            # print(f'left={left}')
+            # print(files'left={left}')
         print(char_set)
     return max_len
 

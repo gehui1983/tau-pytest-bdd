@@ -12,8 +12,8 @@ class mysql_op:
                  store_ids: str,  # 店铺 ID
                  db_name: str = 'fin_portal_pre'
                  ):
-        self.store_ids = store_ids  # 店铺ID 唯一
-        self.db = mysql.connect(host="rm-bp12358fo85u1lm5o6o.mysql.rds.aliyuncs.com", port=3306, user='xhadmin',
+        self.store_ids = store_ids  # 店铺ID 唯一 rm-bp1t4k5l69f6ifql5to.mysql.rds.aliyuncs.com
+        self.db = mysql.connect(host="rm-bp1t4k5l69f6ifql5to.mysql.rds.aliyuncs.com", port=3306, user='xhadmin',
                                 password='test#202412', database=db_name)
         self.cur = self.db.cursor()
 
@@ -178,7 +178,7 @@ def audit_pass(host: str, headers: dict, audit_id: int) -> bytes:
 
 
 if __name__ == "__main__":
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJGSU5fUCIsImlhdCI6MTczNzAxNTM5OSwiZXhwIjoxNzM3NjIwMTk5LCJ1c2VyTm8iOiJ3YW5nbWF6aSIsInVzZXJJZCI6IjQifQ.Xuiv9sbUFa8xleulNbHJO7PAlIarB-taN4hw7uqd4tg'
+    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJGSU5fUCIsImlhdCI6MTczODc2MDc1NSwiZXhwIjoxNzM5MzY1NTU1LCJ1c2VyTm8iOiJ3YW5nbWF6aSIsInVzZXJJZCI6IjQifQ.sEPpJt6rwi0HoLJI9WpjIkjgVcpfIm8xWXiZ2pI-v94'
     headers = {
         'Accept': 'application/json, text/plain, */*',
         'Accept-Language': 'en,zh-CN;q=0.9,zh;q=0.8,zh-TW;q=0.7',

@@ -20,6 +20,7 @@ def get_os_type():
     else:
         return 'unknown'
 
+
 def is_float(s: str):
     pattern = r'-?\d+(\.\d+)?([eE][+-]?\d+)?$'
     if bool(re.match(pattern, s)):
@@ -88,7 +89,7 @@ def clear_expected_settlement_amount(f_source: list):
             if is_float(f):
                 expected_settlement_amount.append(float(f))
             else:
-                # print(f)
+                # print(files)
                 expected_settlement_amount.append(float("0.00"))
         elif isinstance(f, float):
             expected_settlement_amount.append(f)
@@ -99,15 +100,16 @@ def clear_expected_settlement_amount(f_source: list):
 # 预计结算日期函数
 def clear_expected_settlement_date(f_source: list):
     for f in f_source:
-        # print(f"{type(f)}---{f}")
+        # print(files"{type(files)}---{files}")
         if isinstance(f, str):
-            f = f.strip().replace("/","-")
-            # print(f)
+            f = f.strip().replace("/", "-")
+            # print(files)
             expected_settlement_date.append(f)
         elif isinstance(f, (float, int)):
             expected_settlement_date.append("无预计结算日期")
-        # elif isinstance(f, int):
-        #     expected_settlement_date.append(str(f).strip())
+        # elif isinstance(files, int):
+        #     expected_settlement_date.append(str(files).strip())
+
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
@@ -115,16 +117,16 @@ if __name__ == '__main__':
         exit(0)
     csv_file = sys.argv[1]
     # csv_file = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
-    names=[]
+    names = []
     if get_os_type() == "win":
         names = csv_file.split("\\")
     if get_os_type() == "linux":
         names = csv_file.split("/")
 
-    if len(names)==0:
+    if len(names) == 0:
         exit(0)
 
-    file_name = names[len(names)-1]
+    file_name = names[len(names) - 1]
     store_name = file_name.split('-')[0]
     print(store_name)
     dir_name = csv_file[0:len(csv_file) - len(file_name)]
@@ -155,7 +157,6 @@ if __name__ == '__main__':
 
     print(result_pd)
 
-
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H-%M-%S')
@@ -164,7 +165,7 @@ if __name__ == '__main__':
         f.write(f"总计：\r\n")
         f.write(str(result_pd))
         f.write(f"\r\n预计结算金额 总额: {result_pd['金额'].sum()}")
-        if len(sys.argv)==4:
+        if len(sys.argv) == 4:
             start_date = sys.argv[2]
             end_date = sys.argv[3]
             f.write(f"\r\n\r\n 从{start_date}到{end_date}：\r\n")
@@ -173,5 +174,3 @@ if __name__ == '__main__':
             print(f"\r\n{start_date}到{end_date}预计结算金额: {result_pd_0['金额'].sum()}")
             f.write(str(result_pd_0))
             f.write(f"\r\n{start_date}到{end_date}预计结算金额: {result_pd_0['金额'].sum()}")
-
-

@@ -37,31 +37,32 @@ order_number = list()
 # 发货时间
 delivery_time = list()
 
-# 预计结算金额
+# 商家实收金额(元)
 expected_settlement_amount = list()
 
 data = {
-    "订单编号": order_number,
+    "订单号": order_number,
     "发货时间": delivery_time,
-    "预计结算金额": expected_settlement_amount
+    "商家实收金额(元)": expected_settlement_amount
 }
 
 
 # 订单编号 函数
 # 发货时间 函数
 def deliver_fun(deliveryName: str):
-    excel = pd.ExcelFile(deliveryName)
-    delivery_pd = pd.read_excel(excel, dtype={"订单编号": str, "发货时间": str})
+    # excel = pd.ExcelFile(deliveryName)
+    delivery_pd = pd.read_csv(deliveryName, dtype={"订单号": str, "发货时间": str, "包裹状态": str})
     for t in delivery_pd.iterrows():
         index, row = t
         # print(row["订单编号"])
-        #
+        # 已派件,已签收, 转运中
         # print(row)
         # print(files'{index}--{row["订单编号"]}---{row["发货时间"]}')
-        if isinstance(row["订单编号"], str) and isinstance(row["发货时间"], str):
-            orders = row["订单编号"].split(",")
+        if isinstance(row["订单号"], str) and isinstance(row["发货时间"], str):
+            order = row["订单号"].strip()
             date = row["发货时间"].split(" ")[0].strip()
-            for order in orders:
+            package = row["包裹状态"].split(" ")[0].strip()
+            if package == "已派件" or package =="已签收" or package == "转运中":
                 order_number.append(order)
                 delivery_time.append(date)
 
@@ -70,11 +71,11 @@ order_dict = dict()
 
 
 def order_fun(orderName: str):
-    order_pd = pd.read_csv(orderName, chunksize=100, dtype={"子订单编号": str, "预计结算金额": str})
+    order_pd = pd.read_csv(orderName, chunksize=100, dtype={"订单号": str, "商家实收金额(元)": str})
     for t in order_pd:
         for index, row in t.iterrows():
-            sub_order = row["子订单编号"].strip()
-            expected = row["预计结算金额"].strip()
+            sub_order = row["订单号"].strip()
+            expected = row["商家实收金额(元)"].strip()
             if is_float(expected):
                 order_dict.setdefault(sub_order, expected)
             else:
@@ -82,9 +83,6 @@ def order_fun(orderName: str):
 
 
 if __name__ == '__main__':
-    delivery_name = None
-    order_name = None
-
     if len(sys.argv) < 2:
         print(">>>>>缺少参数<<<<<")
         print("参数格式如下：")
@@ -95,8 +93,8 @@ if __name__ == '__main__':
     order_name = sys.argv[2]
     print(order_name)
 
-    # delivery_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-包裹中心导出-2024-11-26 17-11-51.xlsx"
-    # order_name = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
+    # delivery_name = "/home/james/Downloads/PDD/海乐威-包裹中心.csv"
+    # order_name = "/home/james/Downloads/PDD/海乐威-订单管理.csv"
 
     names = []
     if get_os_type() == "win":
@@ -115,16 +113,16 @@ if __name__ == '__main__':
 
     deliver_fun(deliveryName=delivery_name)
     order_fun(orderName=order_name)
-    assert len(data["订单编号"]) != len("发货时间")
+    assert len(data["订单号"]) == len(data["发货时间"])
 
-    for o in data["订单编号"]:
+    for o in data["订单号"]:
         m = order_dict.get(o)
         if m is not None:
-            data["预计结算金额"].append(float(m))
+            data["商家实收金额(元)"].append(float(m))
         else:
-            data["预计结算金额"].append(0)
+            data["商家实收金额(元)"].append(0)
     df = pd.DataFrame(data)
-    su: Series = df.groupby("发货时间")["预计结算金额"].sum()
+    su: Series = df.groupby("发货时间")["商家实收金额(元)"].sum()
 
     # print(str(su))
     # print(su.index.values)

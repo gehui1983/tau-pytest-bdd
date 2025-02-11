@@ -40,7 +40,7 @@ def twoSum(nums: List[int], target: int) -> List[int]:
 #     arr = cookie.split("; ")
 #     d = dict()
 #     for a in arr:
-#         print(f"key={a.split('=')[0]}----value={a.split('=')[1]}")
+#         print(files"key={a.split('=')[0]}----value={a.split('=')[1]}")
 #         d.setdefault(a.split('=')[0], {a.split('=')[1]})
 #     print(d)
 
