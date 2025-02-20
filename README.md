@@ -163,3 +163,7 @@ Andy is a Pythonista who specializes in testing and automation.
 * Blog: [AutomationPanda.com](https://automationpanda.com/)
 * Twitter: [@AutomationPanda](https://twitter.com/AutomationPanda)
 * LinkedIn: [andrew-leland-knight](https://www.linkedin.com/in/andrew-leland-knight/)
+
+
+## pytorch
+pip3 install torch torchvision torchaudio

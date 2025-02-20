@@ -115,7 +115,7 @@ if __name__ == '__main__':
     #     exit(0)
     # csv_file = sys.argv[1]
     # csv_file = "/home/james/PycharmProjects/tau-pytest-bdd/xh/海乐威-待结算订单.csv"
-    csv_file = "/home/james/Downloads/PDD/海乐威-订单管理.csv"
+    csv_file = "./PDD/海乐威-订单管理.csv"
     names = []
     if get_os_type() == "win":
         names = csv_file.split("\\")

@@ -108,6 +108,4 @@ venv.bak/
 
 # VS Code files
 .vscode
-*.csv
-*.xlsx
 logs/

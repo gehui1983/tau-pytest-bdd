@@ -93,8 +93,8 @@ if __name__ == '__main__':
     order_name = sys.argv[2]
     print(order_name)
 
-    # delivery_name = "/home/james/Downloads/PDD/海乐威-包裹中心.csv"
-    # order_name = "/home/james/Downloads/PDD/海乐威-订单管理.csv"
+    # delivery_name = "./PDD/海乐威-包裹中心.csv"
+    # order_name = "./PDD/海乐威-订单管理.csv"
 
     names = []
     if get_os_type() == "win":

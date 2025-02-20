@@ -183,7 +183,13 @@ def maxLetter(lis: List[int], k: int):
 
 
 if __name__ == '__main__':
-    before = int(time.time())
-    LOGGER.info(maxLetter([9, 10, 10, 10, 10, 10, 10, 10, 10], 3))
-    after = int(time.time())
-    print(after - before)
+    # before = int(time.time())
+    # LOGGER.info(maxLetter([9, 10, 10, 10, 10, 10, 10, 10, 10], 3))
+    # after = int(time.time())
+    # print(after - before)
+    import torch
+
+    print(torch.cuda.is_available())
+    # data = torch.tensor([[1, 2, 3, 4, 5], [2, 3, 4, 5, 6]])
+    data = torch.zeros(2, 5)
+    print(data.dtype)
