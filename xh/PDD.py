@@ -7,6 +7,8 @@ from datetime import datetime
 import pandas as pd
 from pandas import Series
 
+from xh.ks_order_analyze import order_status
+
 
 def get_os_type():
     if os.name == 'nt':
@@ -57,7 +59,7 @@ def deliver_fun(deliveryName: str):
         order = str(row["订单号"]).strip()
         date = str(row["发货时间"]).split(" ")[0].strip()
         package = str(row["包裹状态"]).split(" ")[0].strip()
-        if package == "已派件" or package =="已签收" or package == "转运中":
+        if package in ["已派件", "已签收", "转运中", "已揽件"]:
             order_number.append(order)
             delivery_time.append(date)
 
@@ -66,15 +68,17 @@ order_dict = dict()
 
 
 def order_fun(orderName: str):
-    order_pd = pd.read_csv(orderName, chunksize=100, dtype={"订单号": str, "商家实收金额(元)": str})
+    order_pd = pd.read_csv(orderName, chunksize=100, dtype={"订单号": str, "订单状态": str,"商家实收金额(元)": str})
     for t in order_pd:
         for index, row in t.iterrows():
             sub_order = str(row["订单号"]).strip()
             expected = str(row["商家实收金额(元)"]).strip()
-            if is_float(expected):
-                order_dict.setdefault(sub_order, expected)
-            else:
-                order_dict.setdefault(sub_order, "0.00")
+            order_state = str(row["订单状态"]).strip()
+            if order_state in ["已发货，待收货","已收货"]:
+                if is_float(expected):
+                    order_dict.setdefault(sub_order, expected)
+                else:
+                    order_dict.setdefault(sub_order, "0.00")
 
 
 if __name__ == '__main__':
@@ -120,9 +124,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(data)
     su: Series = df.groupby("发货时间")["商家实收金额(元)"].sum()
 
-    # print(str(su))
-    # print(su.index.values)
-
     result = {
         "日期": list(su.index.values),
         "金额": list(su.values)
@@ -130,23 +131,23 @@ if __name__ == '__main__':
     result_pd = pd.DataFrame(result)
     print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
-    now = datetime.now()
-    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    with open(file=f"{dir_name}{store_name}-待结算订单和包裹匹配汇总-{formatted_now}.txt", mode="wt") as f:
-        f.write(str(result_pd))
-        f.write(f"\n预计结算金额 总额: {result_pd['金额'].sum()}")
-
-        if len(sys.argv) == 5:
-            start_date = sys.argv[3]
-            end_date = sys.argv[4]
-
-            # start_date = '2024-11-08'
-            # end_date = '2024-11-15'
-            result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
-
-            print(f'\n从{start_date}到{end_date} 详情')
-            print(result_pd_0)
-            print(f'从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
-            f.write(f'\n从{start_date}到{end_date} 详情')
-            f.write(str(result_pd_0))
-            f.write(f'\n从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
+    # now = datetime.now()
+    # formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+    # with open(file=f"{dir_name}{store_name}-待结算订单和包裹匹配汇总-{formatted_now}.txt", mode="wt") as f:
+    #     f.write(str(result_pd))
+    #     f.write(f"\n预计结算金额 总额: {result_pd['金额'].sum()}")
+    #
+    #     if len(sys.argv) == 5:
+    #         start_date = sys.argv[3]
+    #         end_date = sys.argv[4]
+    #
+    #         # start_date = '2024-11-08'
+    #         # end_date = '2024-11-15'
+    #         result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
+    #
+    #         print(f'\n从{start_date}到{end_date} 详情')
+    #         print(result_pd_0)
+    #         print(f'从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
+    #         f.write(f'\n从{start_date}到{end_date} 详情')
+    #         f.write(str(result_pd_0))
+    #         f.write(f'\n从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')

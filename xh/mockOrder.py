@@ -97,7 +97,7 @@ if __name__ == '__main__':
     version = dt_object.strftime('%Y%m%d')
     apply_code = 'SQ-' + dt_object.strftime('%Y%m%d%H%M-%S')+'00'
     print(f'{apply_code}---{version}')
-    p1 = Store_apply(store_ids="3aa0a707-4ec3-46a9-be6d-a2148ff0dfd7", apply_code=apply_code, version=version)
+    p1 = Store_apply(store_ids="23576404", apply_code=apply_code, version=version)
     p1.sql_execute(db_name='fin_portal_pre')
 
 

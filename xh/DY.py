@@ -135,28 +135,40 @@ if __name__ == '__main__':
     df = pd.DataFrame(temp_d)
     df = df[(df['售后状态'] == '-') |
             (df['售后状态'] == '售后关闭') |
-            (df['售后状态'] == '补寄状态')]
+            (df['售后状态'] == '补寄成功')]
     df = df[(df['包裹状态'] == '') |
             (df['包裹状态'] == '待取件') |
             (df['包裹状态'] == '派送中') |
-            (df['包裹状态'] == '已揽件待中转') |
+            (df['包裹状态'] == '已揽收待中转') |
             (df['包裹状态'] == '已签收') |
             (df['包裹状态'] == '已中转待派件')]
     df_dict = df.to_dict(orient='list')
     # print(df_dict)
+    order_date_dict=dict()
+    for i in range(0, len(df_dict["订单编号"])):
+        order_date_dict.setdefault(df_dict["订单编号"][i],df_dict["发货时间"][i])
 
-    pending = pending_settlement("/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv")
+
+    order_account = pending_settlement("/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv")
     deli_time = list()
     prepend_account = list()
     result_dict = dict()
-    for key in pending.keys():
-        for i in range(0, len(df_dict["订单编号"])):
-            nu = df_dict["订单编号"][i]
-            if key == nu:
-                deli_time.append(df_dict["发货时间"][i])
-                prepend_account.append(pending[key])
+    # for key in order_account.keys():
+    #     for i in range(0, len(df_dict["订单编号"])):
+    #         nu = df_dict["订单编号"][i]
+    #         if key == nu:
+    #             deli_time.append(df_dict["发货时间"][i])
+    #             prepend_account.append(float(order_account[key]))
+    #             print(nu, df_dict["发货时间"][i], order_account[key])
+
+    for key in set(order_account.keys()) & set(order_date_dict.keys()):
+        deli_time.append(order_date_dict[key])
+        prepend_account.append(float(order_account[key]))
+        print(key, order_date_dict[key], order_account[key])
+
+
     result_dict = {"发货时间": deli_time, "预计结算金额": prepend_account}
-    # print(result_dict)
+    print(len(result_dict["发货时间"]))
     df = pd.DataFrame(result_dict)
     su = df.groupby("发货时间")["预计结算金额"].sum()
     #
@@ -165,7 +177,7 @@ if __name__ == '__main__':
         "金额": list(su.values)
     }
     result_pd = pd.DataFrame(result)
-    # print(result_pd)
+    print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
     # delivery_name = None
