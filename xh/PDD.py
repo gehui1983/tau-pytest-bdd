@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     result = {
         "日期": list(su.index.values),
-        "金额": list(su.values)
+        "金额": su.to_list()
     }
     result_pd = pd.DataFrame(result)
     print(result_pd)
