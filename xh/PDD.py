@@ -7,9 +7,6 @@ from datetime import datetime
 import pandas as pd
 from pandas import Series
 
-from xh.ks_order_analyze import order_status
-
-
 def get_os_type():
     if os.name == 'nt':
         return 'win'
@@ -33,94 +30,110 @@ def is_float(s: str):
     return False
 
 
-# 订单编号
-order_number = list()
+# 文件：/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv
+# 字段：订单号, 包裹状态
+# 包裹状态:"已派件", "已签收", "转运中", "已揽件"
+def deliver_fun(filepath_or_buffer: str) -> dict:
 
-# 发货时间
-delivery_time = list()
-
-# 商家实收金额(元)
-expected_settlement_amount = list()
-
-data = {
-    "订单号": order_number,
-    "发货时间": delivery_time,
-    "商家实收金额(元)": expected_settlement_amount
-}
-
-
-# 订单编号 函数
-# 发货时间 函数
-def deliver_fun(deliveryName: str):
-    global order0
-    delivery_pd = pd.read_csv(deliveryName, dtype={"订单号": str, "发货时间": str, "包裹状态": str})
+    delivery_pd = pd.read_csv(filepath_or_buffer = filepath_or_buffer,
+                              dtype={"订单号": str, "包裹状态": str})
+    order_number_list = list()
+    package_state_list = list()
     for t in delivery_pd.iterrows():
         index, row = t
-        order = str(row["订单号"]).strip()
-        date = str(row["发货时间"]).split(" ")[0].strip()
-        package = str(row["包裹状态"]).split(" ")[0].strip()
-        if package in ["已派件", "已签收", "转运中", "已揽件"]:
-            order_number.append(order)
-            delivery_time.append(date)
+        order_number = str(row["订单号"]).strip()
+        package_state = str(row["包裹状态"]).strip()
+        if package_state.lower() == 'nan':
+            package_state = ""
+        if package_state in ["已派件", "已签收", "转运中", "已揽件"]:
+            order_number_list.append(order_number)
+            package_state_list.append(package_state)
+    return {"订单号": order_number_list, "包裹状态":package_state_list}
 
 
-order_dict = dict()
+# 文件：/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv
+# 字段：订单号, 发货时间, 售后状态, 订单状态, 商家实收金额(元)
+# 售后状态:无售后或售后取消
+# 订单状态:"已发货", "待收货", "已收货"
+def order_fun(filepath_or_buffer: str) -> dict:
+    order_pd = pd.read_csv(filepath_or_buffer=filepath_or_buffer, chunksize=100,
+                           dtype={"订单号": str, "发货时间":str, "订单状态": str,"售后状态":str, "商家实收金额(元)": str})
 
-
-def order_fun(orderName: str):
-    order_pd = pd.read_csv(orderName, chunksize=100, dtype={"订单号": str, "订单状态": str,"商家实收金额(元)": str})
+    order_manager_dict = dict()
     for t in order_pd:
         for index, row in t.iterrows():
-            sub_order = str(row["订单号"]).strip()
-            expected = str(row["商家实收金额(元)"]).strip()
+            order_number = str(row["订单号"]).strip()
+            goods_time = str(row["发货时间"]).strip().split(" ")[0].strip()
             order_state = str(row["订单状态"]).strip()
-            if order_state in ["已发货，待收货","已收货"]:
-                if is_float(expected):
-                    order_dict.setdefault(sub_order, expected)
-                else:
-                    order_dict.setdefault(sub_order, "0.00")
+            saled_state = str(row["售后状态"]).strip()
+            actual_amount = str(row["商家实收金额(元)"]).strip()
+            if is_float(actual_amount):
+                actual_amount = actual_amount
+            else:
+                actual_amount = "0.00"
 
+            if (order_state in ["已发货，待收货","已收货"]) and (saled_state in ["无售后或售后取消"]):
+                # order_number_list.append(order_number)
+                # goods_time_list.append(goods_time)
+                # order_state_list.append(order_state)
+                # saled_state_list.append(saled_state)
+                # actual_amount_list.append(actual_amount)
+                d = order_manager_dict.get(order_number)
+                if d is None:
+                    order_manager_dict.setdefault(order_number,[(goods_time, order_state, saled_state, actual_amount)])
+                else:
+                    assert isinstance(d, list) == False
+                    d.append((goods_time, order_state, saled_state, actual_amount))
+
+    return order_manager_dict
 
 if __name__ == '__main__':
-    # if len(sys.argv) < 2:
-    #     print(">>>>>缺少参数<<<<<")
-    #     print("参数格式如下：")
-    #     print("python douyin_order_match.py 物流表单.xlsx 订单表.csv 开始日期[2024-11-08] 结束日期[2024-11-09]")
-    #     exit(0)
-    # delivery_name = sys.argv[1]
-    # print(delivery_name)
-    # order_name = sys.argv[2]
-    # print(order_name)
 
-    # delivery_name = "./PDD/海乐威-包裹中心.csv"
-    # order_name = "./PDD/海乐威-订单管理.csv"
-    delivery_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
-    order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
-    names = []
-    if get_os_type() == "win":
-        names = delivery_name.split("\\")
-    if get_os_type() == "linux":
-        names = delivery_name.split("/")
 
-    if len(names) == 0:
-        exit(0)
+    delivery_file_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
+    order_file_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
+    deliver_dict = deliver_fun(filepath_or_buffer=delivery_file_name)
+    order_dict = order_fun(filepath_or_buffer=order_file_name)
+    deliver_order_list = deliver_dict["订单号"]
 
-    file_name = names[len(names) - 1]
-    store_name = file_name.split('-')[0]
-    print(store_name)
-    dir_name = delivery_name[0:len(delivery_name) - len(file_name)]
-    print(dir_name)
+    order_list = order_dict.keys()
 
-    deliver_fun(deliveryName=delivery_name)
-    order_fun(orderName=order_name)
+    inner_sets = set(deliver_order_list) & order_list
+
+    print(inner_sets)
+
+    # 订单号
+    order_number_list = list()
+    # 发货时间
+    goods_time_list = list()
+    # 订单状态
+    order_state_list = list()
+    # 售后状态
+    saled_state_list = list()
+    # 商家实收金额(元)
+    actual_amount_list = list()
+    data = {"订单号":order_number_list,
+            "发货时间":goods_time_list,
+            "订单状态":order_state_list,
+            "售后状态":saled_state_list,
+            "商家实收金额(元)": actual_amount_list
+    }
+
+
+    for order in inner_sets:
+        order_number_list.append(order)
+        values = order_dict.get(order)
+        for value in values:
+            goods_time, order_state, saled_state, actual_amount = value
+            goods_time_list.append(goods_time)
+            order_state_list.append(order_state)
+            saled_state_list.append(saled_state)
+            actual_amount_list.append(float(actual_amount))
+
+
+
     assert len(data["订单号"]) == len(data["发货时间"])
 
-    for o in data["订单号"]:
-        m = order_dict.get(o)
-        if m is not None:
-            data["商家实收金额(元)"].append(float(m))
-        else:
-            data["商家实收金额(元)"].append(0)
     df = pd.DataFrame(data)
     su: Series = df.groupby("发货时间")["商家实收金额(元)"].sum()
 
@@ -131,23 +144,3 @@ if __name__ == '__main__':
     result_pd = pd.DataFrame(result)
     print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
-    # now = datetime.now()
-    # formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    # with open(file=f"{dir_name}{store_name}-待结算订单和包裹匹配汇总-{formatted_now}.txt", mode="wt") as f:
-    #     f.write(str(result_pd))
-    #     f.write(f"\n预计结算金额 总额: {result_pd['金额'].sum()}")
-    #
-    #     if len(sys.argv) == 5:
-    #         start_date = sys.argv[3]
-    #         end_date = sys.argv[4]
-    #
-    #         # start_date = '2024-11-08'
-    #         # end_date = '2024-11-15'
-    #         result_pd_0 = result_pd[(result_pd['日期'] >= start_date) & (result_pd['日期'] <= end_date)]
-    #
-    #         print(f'\n从{start_date}到{end_date} 详情')
-    #         print(result_pd_0)
-    #         print(f'从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
-    #         f.write(f'\n从{start_date}到{end_date} 详情')
-    #         f.write(str(result_pd_0))
-    #         f.write(f'\n从{start_date}到{end_date} 金额汇总：{result_pd_0["金额"].sum()}')
