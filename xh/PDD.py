@@ -161,8 +161,8 @@ def final_pdd(delivery_name:str, order_name:str) -> dict:
 
 
 if __name__ == '__main__':
-    delivery_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
-    order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
+    # delivery_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
 
     if len(sys.argv) < 2:
         print(">>>>>缺少参数<<<<<")
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     order_name = sys.argv[2]
     print("订单: ",order_name)
 
-    data_dict = final_pdd(delivery_name=delivery_name,
+    data_dict = final_pdd(delivery_name=deliver_name,
                           order_name=order_name)
 
     df = pd.DataFrame(data_dict)

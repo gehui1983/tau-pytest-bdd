@@ -161,9 +161,9 @@ def final_dy(deliver_name:str, order_name:str, pending_name:str) -> dict:
     return result_dict
 
 if __name__ == '__main__':
-    deliver_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx"
-    order_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv"
-    pending_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv"
+    # deliver_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv"
+    # pending_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv"
     if len(sys.argv) < 3:
         print(">>>>>缺少参数<<<<<")
         print("参数格式如下：")

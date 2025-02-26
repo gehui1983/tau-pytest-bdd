@@ -170,10 +170,10 @@ def final_ks(deliver_name:str, order_name:str, pending_name:str, passwd:str) -> 
 
 
 if __name__ == '__main__':
-    deliver_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls"
-    order_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx"
-    pending_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx"
-    passwd = "b9cac4"
+    # deliver_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx"
+    # pending_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx"
+    # passwd = "b9cac4"
     if len(sys.argv) < 4:
         print(">>>>>缺少参数<<<<<")
         print("参数格式如下：")
