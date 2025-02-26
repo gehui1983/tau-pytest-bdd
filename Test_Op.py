@@ -1,6 +1,6 @@
 import itertools
-import sys
-import time
+# import sys
+# import time
 
 from common.Log4test import Log4test
 from typing import List
@@ -21,7 +21,7 @@ LOGGER = Log4test()
 # import math
 
 
-def twoSum(nums: List[int], target: int) -> List[int]:
+def two_sum(nums: List[int], target: int) -> List[int]:
     res = list()
     for i in range(0, len(nums)):
         diff = target - nums[i]
@@ -145,7 +145,7 @@ def permutation(nums: List[int], index: int, length: int):
 # print(len(rs))
 
 
-def maxLetters(nums: List[int], k: int):
+def max_letters(nums: List[int], k: int):
     if len(nums) == len(set(nums)):
         return len(nums)
     if len(nums) <= 2 * k:
@@ -168,7 +168,7 @@ def maxLetters(nums: List[int], k: int):
     return max_i
 
 
-def maxLetter(lis: List[int], k: int):
+def max_letter(lis: List[int], k: int):
     lis = sorted(lis)
     ans = 0
     l = -(2 ** 63)
@@ -193,3 +193,11 @@ if __name__ == '__main__':
     # data = torch.tensor([[1, 2, 3, 4, 5], [2, 3, 4, 5, 6]])
     data = torch.zeros(2, 5)
     print(data.dtype)
+
+    import chardet
+
+    # 检测文件编码 拼多多-百肤邦-包裹中心.csv 拼多多-百肤邦-订单管理.csv 拼多多-百肤邦-订单管理-01.xlsx
+    with open('/home/james/Documents/2025.2.20原始数据/PDD/02/拼多多-百肤邦-订单管理-01.xlsx', 'rb') as f:
+        result = chardet.detect(f.read())
+        # print(result['encoding'])
+        print(result)

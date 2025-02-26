@@ -56,8 +56,7 @@ def deliver_fun(filepath_or_buffer: str) -> dict:
 
     delivery_pd = pd.read_csv(filepath_or_buffer = filepath_or_buffer, chunksize=100,
                               dtype={"订单号": str, "包裹状态": str})
-    order_number_list = list()
-    package_state_list = list()
+    deliver_dict = dict()
     for t in delivery_pd:
         for index, row in t.iterrows():
             order_number = str(row["订单号"]).strip()
@@ -65,9 +64,13 @@ def deliver_fun(filepath_or_buffer: str) -> dict:
             if package_state.lower() == 'nan':
                 package_state = ""
             if package_state in ["已派件", "已签收", "转运中", "已揽件"]:
-                order_number_list.append(order_number)
-                package_state_list.append(package_state)
-    return {"订单号": order_number_list, "包裹状态":package_state_list}
+                value = deliver_dict.get(order_number)
+                if value is None:
+                    deliver_dict.setdefault(order_number,[package_state])
+                else:
+                    assert isinstance(value, list)
+                    value.append(package_state)
+    return deliver_dict
 
 
 # 文件：/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv
@@ -97,7 +100,7 @@ def order_fun(filepath_or_buffer: str) -> dict:
                 if d is None:
                     order_manager_dict.setdefault(order_number, [(goods_time, order_state, saled_state, actual_amount)])
                 else:
-                    assert isinstance(d, list) == False
+                    assert isinstance(d, list)
                     d.append((goods_time, order_state, saled_state, actual_amount))
 
     return order_manager_dict
@@ -107,11 +110,7 @@ if __name__ == '__main__':
     deliver_dict = deliver_fun(filepath_or_buffer=delivery_file_name)
     order_file_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
     order_dict = order_fun(filepath_or_buffer=order_file_name)
-    deliver_order_list = deliver_dict["订单号"]
-
-    order_set = order_dict.keys()
-
-    inner_sets = set(deliver_order_list) & order_set
+    inner_sets = order_dict.keys() & deliver_dict.keys()
 
     print(inner_sets)
 
@@ -125,23 +124,19 @@ if __name__ == '__main__':
     saled_state_list = list()
     # 商家实收金额(元)
     actual_amount_list = list()
-    data = {"订单号":order_number_list,
-            "发货时间":goods_time_list,
-            "订单状态":order_state_list,
-            "售后状态":saled_state_list,
-            "商家实收金额(元)": actual_amount_list
-    }
-
+    # 包裹状态
+    deliver_state_list = list()
 
     for order in inner_sets:
         order_number_list.append(order)
         values = order_dict.get(order)
-        for value in values:
-            goods_time, order_state, saled_state, actual_amount = value
-            goods_time_list.append(goods_time)
-            order_state_list.append(order_state)
-            saled_state_list.append(saled_state)
-            actual_amount_list.append(float(actual_amount))
+        goods_time, order_state, saled_state, actual_amount = values[0]
+        goods_time_list.append(goods_time)
+        order_state_list.append(order_state)
+        saled_state_list.append(saled_state)
+        actual_amount_list.append(float(actual_amount))
+        deliver_state_list.append(deliver_dict[order][0])
+
 
     # "订单号":order_number_list,
     # "发货时间"，"订单状态"，"售后状态","商家实收金额(元)" 列表长度和 订单号 列表长度相同
@@ -150,7 +145,14 @@ if __name__ == '__main__':
     assert len(saled_state_list) == length
     assert len(order_state_list) == length
     assert len(actual_amount_list) == length
-
+    data = {
+        "订单号":order_number_list,
+        "发货时间":goods_time_list,
+        "订单状态":order_state_list,
+        "售后状态":saled_state_list,
+        "商家实收金额(元)": actual_amount_list,
+        "包裹状态": deliver_state_list
+    }
     df = pd.DataFrame(data)
     su: Series = df.groupby("发货时间")["商家实收金额(元)"].sum()
 
