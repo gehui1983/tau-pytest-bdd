@@ -2,14 +2,8 @@ import os
 import platform
 import re
 import sys
-from datetime import datetime
-
 import chardet
 import pandas as pd
-from pandas import Series
-
-from xh.pdd_order_analyze import saled_status
-
 
 def detect_file_encoding(file_path:str) -> str:
     with open(file_path, 'rb') as f:
@@ -67,8 +61,9 @@ def deliver_fun(file_name: str) -> dict:
 # 待结算：
 
 def pending_settlement(file_name: str) -> dict:
+    encoding = detect_file_encoding(file_path=file_name)
+    order_pd = pd.read_csv(file_name, chunksize=3000, dtype={"子订单编号": str, "预计结算金额": str}, encoding=encoding)
     order_dict = dict()
-    order_pd = pd.read_csv(file_name, chunksize=3000, dtype={"子订单编号": str, "预计结算金额": str}, encoding="gbk")
     for t in order_pd:
         for index, row in t.iterrows():
             sub_order = row["子订单编号"].strip()
@@ -115,17 +110,15 @@ def order_management(file_name: str) -> dict:
                         value.append((after_sales_name,order_state))
     return oder_dict
 
-
-if __name__ == '__main__':
-
+def final_dy(deliver_name:str, order_name:str, pending_name:str) -> dict:
     # dtype = {"订单编号": str, "发货时间": str, "包裹状态": str})
-    deliver_d = deliver_fun(file_name="/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx")
+    deliver_d = deliver_fun(file_name=deliver_name)
     deliver_set = deliver_d.keys()
     # dtype = {"子订单编号": str, "预计结算金额": str}
-    pending_d = pending_settlement(file_name="/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv")
+    pending_d = pending_settlement(file_name=pending_name)
     pending_set = pending_d.keys()
     # dtype = {"子订单编号": str, "售后状态": str}
-    order_d = order_management(file_name="/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv")
+    order_d = order_management(file_name=order_name)
     order_set = order_d.keys()
 
     inner_set = deliver_set & pending_set & order_set
@@ -153,18 +146,38 @@ if __name__ == '__main__':
 
         pending_account_list.append(float(pending_d[order_num][0]))
 
-        saled_status,order_state = order_d[order_num][0]
+        saled_status, order_state = order_d[order_num][0]
         saled_status_list.append(saled_status)
         order_state_list.append(order_state)
 
-    result_dict = {"订单编号":order_list,
+    result_dict = {"订单编号": order_list,
                    "发货时间": deliver_time_list,
                    "包裹状态": pack_state_list,
-                   "预计结算金额":pending_account_list,
-                   "售后状态":saled_status_list,
-                   "订单状态":order_state_list
+                   "预计结算金额": pending_account_list,
+                   "售后状态": saled_status_list,
+                   "订单状态": order_state_list
                    }
     print(len(result_dict["发货时间"]))
+    return result_dict
+
+if __name__ == '__main__':
+    deliver_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx"
+    order_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv"
+    pending_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv"
+    if len(sys.argv) < 3:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python DY01.py 物流表单.xlsx 订单表.csv 待结算.csv")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ", order_name)
+    pending_name = sys.argv[3]
+    print("待结算", pending_name)
+
+    result_dict = final_dy(deliver_name=deliver_name, order_name=order_name, pending_name=pending_name)
+
     df = pd.DataFrame(result_dict)
     su = df.groupby("发货时间")["预计结算金额"].sum()
     #

@@ -2,9 +2,7 @@ import io
 import os
 import platform
 import re
-# import sys
-# from datetime import datetime
-
+import sys
 import msoffcrypto
 import pandas as pd
 
@@ -126,14 +124,13 @@ def order_management_fun(file_name: str, password:str) -> dict:
     return order_dict
 
 
-if __name__ == '__main__':
-    deliver_d = deliver_fun(file_name="/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls")
-    pending_d = pending_settlement_fun(file_name="/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx")
-    order_d = order_management_fun(
-        file_name="/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx",
-        password="b9cac4")
+def final_ks(deliver_name:str, order_name:str, pending_name:str, passwd:str) -> dict:
+    deliver_d = deliver_fun(file_name=deliver_name)
+    order_d = order_management_fun(file_name=order_name, password=passwd)
+    pending_d = pending_settlement_fun(file_name=pending_name)
 
-    inner_set = deliver_d.keys()  & pending_d.keys() & order_d.keys()
+
+    inner_set = deliver_d.keys() & pending_d.keys() & order_d.keys()
     print(inner_set)
 
     # 订单编号
@@ -160,15 +157,39 @@ if __name__ == '__main__':
         order_state_list.append(order_state)
         pending_account_list.append(float(pending_d[order][0]))
 
-    result_dict = {"订单编号":order_list,
+    result_dict = {"订单编号": order_list,
                    "发货时间": deliver_time_list,
                    "包裹状态": pack_state_list,
-                   "预计结算金额":pending_account_list,
-                   "售后状态":saled_status_list,
-                   "订单状态":order_state_list
+                   "预计结算金额": pending_account_list,
+                   "售后状态": saled_status_list,
+                   "订单状态": order_state_list
                    }
     print(len(result_dict["发货时间"]))
     print(result_dict["订单编号"])
+    return result_dict
+
+
+if __name__ == '__main__':
+    deliver_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls"
+    order_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx"
+    pending_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx"
+    passwd = "b9cac4"
+    if len(sys.argv) < 4:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python KS01.py 物流表单.xls 订单表.xlsx 待结算.xlsx 订单密码")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ",order_name)
+    pending_name = sys.argv[3]
+    print("待结算", pending_name)
+    passwd = sys.argv[4]
+    print("订单密码: ", passwd)
+    result_dict = final_ks(deliver_name=deliver_name, order_name=order_name,
+                           pending_name=pending_name, passwd=passwd)
+
     df = pd.DataFrame(result_dict)
     su = df.groupby("发货时间")["预计结算金额"].sum()
     result = {

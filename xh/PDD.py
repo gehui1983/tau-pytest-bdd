@@ -1,11 +1,9 @@
 import os
 import platform
 import re
-# import sys
-# from datetime import datetime
-
+import sys
+import chardet
 import pandas as pd
-from pandas import Series
 
 # 文件：/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv
 # 字段：订单号, 包裹状态
@@ -25,6 +23,13 @@ from pandas import Series
 # 三、计算 “订单管理处理 返回的 订单号” 和 “包裹中心处理 返回的 订单号” 集合交集 inner_set
 # 四、接上一步，根据 inner_set 计算 出 “订单号, 发货时间, 售后状态, 订单状态, 商家实收金额(元)”
 
+
+def detect_file_encoding(file_path:str) -> str:
+    with open(file_path, 'rb') as f:
+        encoding = chardet.detect(f.read(100))['encoding']
+        if encoding.lower()=="gb2312":
+            encoding = "gbk"
+        return encoding
 
 def get_os_type():
     if os.name == 'nt':
@@ -53,8 +58,8 @@ def is_float(s: str):
 # 字段：订单号, 包裹状态
 # 包裹状态:"已派件", "已签收", "转运中", "已揽件"
 def deliver_fun(filepath_or_buffer: str) -> dict:
-
-    delivery_pd = pd.read_csv(filepath_or_buffer = filepath_or_buffer, chunksize=100,
+    encoding = detect_file_encoding(filepath_or_buffer)
+    delivery_pd = pd.read_csv(filepath_or_buffer = filepath_or_buffer, chunksize=2000, encoding=encoding,
                               dtype={"订单号": str, "包裹状态": str})
     deliver_dict = dict()
     for t in delivery_pd:
@@ -78,7 +83,9 @@ def deliver_fun(filepath_or_buffer: str) -> dict:
 # 售后状态:无售后或售后取消
 # 订单状态:"已发货", "待收货", "已收货"
 def order_fun(filepath_or_buffer: str) -> dict:
-    order_pd = pd.read_csv(filepath_or_buffer=filepath_or_buffer, chunksize=100,
+    encoding = detect_file_encoding(filepath_or_buffer)
+
+    order_pd = pd.read_csv(filepath_or_buffer=filepath_or_buffer, chunksize=100, encoding=encoding,
                            dtype={"订单号": str, "发货时间":str, "订单状态": str,"售后状态":str, "商家实收金额(元)": str})
 
     order_manager_dict = dict()
@@ -105,14 +112,12 @@ def order_fun(filepath_or_buffer: str) -> dict:
 
     return order_manager_dict
 
-if __name__ == '__main__':
-    delivery_file_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
-    deliver_dict = deliver_fun(filepath_or_buffer=delivery_file_name)
-    order_file_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
-    order_dict = order_fun(filepath_or_buffer=order_file_name)
+def final_pdd(delivery_name:str, order_name:str) -> dict:
+    deliver_dict = deliver_fun(filepath_or_buffer=delivery_name)
+    order_dict = order_fun(filepath_or_buffer=order_name)
     inner_sets = order_dict.keys() & deliver_dict.keys()
 
-    print(inner_sets)
+    # print(inner_sets)
 
     # 订单号
     order_number_list = list()
@@ -137,28 +142,47 @@ if __name__ == '__main__':
         actual_amount_list.append(float(actual_amount))
         deliver_state_list.append(deliver_dict[order][0])
 
-
     # "订单号":order_number_list,
     # "发货时间"，"订单状态"，"售后状态","商家实收金额(元)" 列表长度和 订单号 列表长度相同
-    length =  len(order_number_list)
+    length = len(order_number_list)
     assert len(goods_time_list) == length
     assert len(saled_state_list) == length
     assert len(order_state_list) == length
     assert len(actual_amount_list) == length
-    data = {
-        "订单号":order_number_list,
-        "发货时间":goods_time_list,
-        "订单状态":order_state_list,
-        "售后状态":saled_state_list,
+    data_dict = {
+        "订单号": order_number_list,
+        "发货时间": goods_time_list,
+        "订单状态": order_state_list,
+        "售后状态": saled_state_list,
         "商家实收金额(元)": actual_amount_list,
         "包裹状态": deliver_state_list
     }
-    df = pd.DataFrame(data)
-    su: Series = df.groupby("发货时间")["商家实收金额(元)"].sum()
+    return data_dict
+
+
+if __name__ == '__main__':
+    delivery_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
+    order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
+
+    if len(sys.argv) < 2:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python PDD.py 物流表单.csv 订单表.csv")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ",order_name)
+
+    data_dict = final_pdd(delivery_name=delivery_name,
+                          order_name=order_name)
+
+    df = pd.DataFrame(data_dict)
+    su = df.groupby("发货时间")["商家实收金额(元)"].sum()
 
     result = {
         "日期": list(su.index.values),
-        "金额": su.to_list()
+        "金额": list(su.values)
     }
     result_pd = pd.DataFrame(result)
     print(result_pd)
