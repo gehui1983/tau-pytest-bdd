@@ -4,16 +4,16 @@ import pymysql as mysql
 
 
 class BuyIn:
-    def __init__(self):
+    def __init__(self,host="127.0.0.1"):
 
-        self.db = mysql.connect(host="127.0.0.1", port=3306, user='admin',
+        self.db = mysql.connect(host=host, port=3306, user='admin',
                                 password='admin', database="CRAWL_DB")
         self.cur = self.db.cursor()
 
     def sql_execute_01(self, crawl_data_id=0):
         no_decode_list = list()
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id > %s'''
-        sql_insert = '''INSERT INTO CRAWL_DB.BUY_IN_01 (source_id,shop_id, shop_name,exp_score,product_id, title, 
+        sql_insert = '''INSERT INTO CRAWL_DB.BUY_IN (source_id,shop_id, shop_name,exp_score,product_id, title, 
                         detail_url, recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio, 
                         kol_num, axis, promotion_id, commodity_id) VALUES 
                 (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
@@ -130,11 +130,11 @@ class BuyIn:
 # [19809, 19868, 20108, 20147, 20456, 20485, 20689, 21746, 22587]
 
 if __name__ == '__main__':
-    buy = BuyIn()
-    buy.sql_execute_01(crawl_data_id=22987)
+    buy = BuyIn(host="192.168.3.145")
+    buy.sql_execute_02(crawl_data_id=1)
 
 # SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 19739;
-# select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN_01 bi group by bi.shop_id) a;
+# select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
 # -- 最大店铺数量: 15238
 # -- source_id:19739
 # -- 1, source_id=3370, 爬取=3103条，增加店铺数量：9411-7407=2004
@@ -146,3 +146,9 @@ if __name__ == '__main__':
 # SELECT * from CRAWL_DATA cd WHERE cd.id = 4726;
 #
 # select MAX(bi.source_id) from CRAWL_DB.BUY_IN_01 bi;
+
+
+# 最大店铺数量：5679
+# -- source_id:9348
+# -- 1, source_id=1, 爬取=9348条，增加店铺数量：5679-0=5679
+#       无法执行 [254, 415, 502, 621, 865, 878, 882, 901, 902, 912, 914, 915, 916, 917, 919, 921, 923, 924, 926, 927, 929, 931, 932, 935, 936, 937, 999, 2522, 2585, 2619, 2687, 3688, 4114, 4145, 4822, 7394, 7885, 8011, 8016, 8041]
