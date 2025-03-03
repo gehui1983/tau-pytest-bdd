@@ -1,9 +1,14 @@
 import itertools
+import re
+from operator import index
+
 # import sys
 # import time
 
 from common.Log4test import Log4test
 from typing import List
+import pandas as pd
+
 
 LOGGER = Log4test()
 
@@ -180,8 +185,41 @@ def max_letter(lis: List[int], k: int):
             l = x
 
     return ans
+def detect_file_encoding(file_path:str) -> str:
+    with open(file_path, 'rb') as f:
+        encoding = chardet.detect(f.read(100))['encoding']
+        if encoding.lower()=="gb2312":
+            encoding = "gbk"
+        return encoding
 
+# 结算单:/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-结算单.csv
+def settlement_process(file_name:str) ->dict:
+    print("---Detect Start-----")
+    encoding = detect_file_encoding(file_path=file_name)
+    print(encoding)
+    # GB2312
+    print("---Detect Start-----")
+    p = r'\d+'
+    settlement_pd = pd.read_csv(file_name, chunksize=3000, dtype={"子订单号": str, "结算金额": str},
+                           encoding=encoding)
+    result_dict = dict()
+    for t in settlement_pd:
+        for index, row in t.iterrows():
+            # if row["子订单号"]
+            # print(row["子订单号"], row["结算金额"])
+            sub_order=re.findall(p, row["子订单号"])
 
+            if len(sub_order) == 0:
+                continue
+            order = sub_order[0]
+            account=row["结算金额"].strip()
+            value = result_dict.get(order)
+            if value is None:
+                result_dict.setdefault(order, [account])
+            else:
+                assert isinstance(value,list)
+                value.append(account)
+    return result_dict
 if __name__ == '__main__':
     # before = int(time.time())
     # LOGGER.info(maxLetter([9, 10, 10, 10, 10, 10, 10, 10, 10], 3))
@@ -197,7 +235,9 @@ if __name__ == '__main__':
     import chardet
 
     # 检测文件编码 拼多多-百肤邦-包裹中心.csv 拼多多-百肤邦-订单管理.csv 拼多多-百肤邦-订单管理-01.xlsx
-    with open('/home/james/Documents/2025.2.20原始数据/PDD/02/拼多多-百肤邦-订单管理-01.xlsx', 'rb') as f:
-        result = chardet.detect(f.read())
-        # print(result['encoding'])
-        print(result)
+    # with open('/home/james/Documents/2025.2.20原始数据/PDD/02/拼多多-百肤邦-订单管理-01.xlsx', 'rb') as f:
+    #     result = chardet.detect(f.read())
+    #     # print(result['encoding'])
+    #     print(result)
+    data = settlement_process(file_name="/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-结算单.csv")
+    print(data)

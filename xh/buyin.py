@@ -4,11 +4,6 @@ import pymysql as mysql
 
 
 class BuyIn:
-    def __init__(self,host="127.0.0.1"):
-
-        self.conn = mysql.connect(host=host, port=3306, user='admin',
-                                  password='admin', database="CRAWL_DB")
-
 
     def clean_data(self, crawl_data_id=0):
         no_decode_list = list()
@@ -19,7 +14,9 @@ class BuyIn:
                 (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
         path = '/pc/selection/common/material_list'
-        cur = self.conn.cursor()
+        conn = mysql.connect(host="127.0.0.1", port=3306, user='admin',
+                             password='admin', database="CRAWL_DB")
+        cur = conn.cursor()
         try:
             cur.execute(sql_select, [path, crawl_data_id])
             res = cur.fetchall()
@@ -94,15 +91,17 @@ class BuyIn:
             print(e.args)
         finally:
             cur.close()
-            self.conn.close()
+            conn.close()
             print("执行完毕")
             print(no_decode_list)
 
-    def sql_execute_02(self, path='/pc/selection/common/material_list', crawl_data_id=6477):
-        sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id > %s'''
-        cur = self.conn.cursor()
+    def sql_execute_02(self,host="192.168.3.145", crawl_data_id=11803):
+        sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE id = %s'''
+        conn = mysql.connect(host="127.0.0.1", port=3306, user='admin',
+                             password='admin', database="CRAWL_DB")
+        cur = conn.cursor()
         try:
-            cur.execute(sql_select, [path, crawl_data_id])
+            cur.execute(sql_select, [ crawl_data_id])
             res = cur.fetchall()
             for t in res:
                 data_id, response_body = t
@@ -110,7 +109,7 @@ class BuyIn:
                 # print(response_body)
                 try:
                     compressed_data = brotli.decompress(response_body)
-                    # print(compressed_data)
+                    print(compressed_data)
                 except brotli.error:
                     print("解压失败")
                     print(brotli.error.args)
@@ -118,7 +117,7 @@ class BuyIn:
             print(e.args)
         finally:
             cur.close()
-            self.conn.close()
+            conn.close()
             print("执行完毕")
 
     def source_to_target(self,crawl_data_id=1):
@@ -128,12 +127,15 @@ class BuyIn:
         target_conn = mysql.connect(host="127.0.0.1", port=3306, user='admin',
                              password='admin', database="CRAWL_DB")
         target_cur = target_conn.cursor()
+
         path0 = '/pc/selection/common/material_list'
         sql_select = '''SELECT `id`,`method`, `host`, `path`, `query`, `cookie`, `request_head`, `request_body`, `response_head`, `response_body` 
                         FROM CRAWL_DB.CRAWL_DATA 
                         WHERE path = %s and id > %s'''
+        source_conn = mysql.connect(host="192.168.3.145", port=3306, user='admin',
+                             password='admin', database="CRAWL_DB")
         try:
-            with self.conn.cursor() as source_cur:
+            with source_conn.cursor() as source_cur:
                 source_cur.execute(sql_select, [path0, crawl_data_id])
                 for row in source_cur:
                     data_id,method, host, path, query, cookie, request_head, request_body, response_head, response_body = row
@@ -143,7 +145,7 @@ class BuyIn:
         except mysql.MySQLError as e:
             print(e.args)
         finally:
-            self.conn.close()
+            source_conn.close()
             target_cur.close()
             target_conn.close()
             print("执行完毕")
@@ -162,9 +164,11 @@ class BuyIn:
 # [19809, 19868, 20108, 20147, 20456, 20485, 20689, 21746, 22587]
 
 if __name__ == '__main__':
-    buy = BuyIn(host="127.0.0.1")
-    # buy.source_to_target(crawl_data_id=1)
-    # buy.clean_data(crawl_data_id=10488)
+    buy = BuyIn()
+    # buy.source_to_target(crawl_data_id=14026)
+    buy.clean_data(crawl_data_id=24510)
+
+    # buy.sql_execute_02(crawl_data_id=11802)
 
 # SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 19739;
 # select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
@@ -181,11 +185,17 @@ if __name__ == '__main__':
 # select MAX(bi.source_id) from CRAWL_DB.BUY_IN_01 bi;
 
 
-# 最大店铺数量：6815
-# -- source_id:13674
+# 最大店铺数量：8778
+# -- source_id:25520
 # -- 1, source_id=1, 爬取=9348条，增加店铺数量：5679-0=5679
 #       无法执行 [254, 415, 502, 621, 865, 878, 882, 901, 902, 912, 914, 915, 916, 917, 919, 921, 923, 924, 926, 927, 929, 931, 932, 935, 936, 937, 999, 2522, 2585, 2619, 2687, 3688, 4114, 4145, 4822, 7394, 7885, 8011, 8016, 8041]
 # --3, source_id=1  爬取=3186条，增加店铺数量：6815-5679=1136
 #       无法执行 [10936, 11974, 12544, 12663]
-
-# 192.168.3.145   max(id) = 3186
+# --4, source_id=13674  爬取=5827条，增加店铺数量：7746-6815=931
+#       无法执行 [13688, 13710, 14751, 15449, 16267, 16283, 16910, 17562, 17885, 19079]
+#
+# --5, source_id=24510  爬取=5013条，增加店铺数量：8590-7746=844
+# 无法执行  [19719, 20497, 22350, 23539, 23784]
+# --5, source_id=25520  爬取=1010条，增加店铺数量：8778-8590=188
+# 无法执行  [25086, 25253, 25275, 25332]
+# 192.168.3.145   max(id) = 15036
