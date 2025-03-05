@@ -191,24 +191,33 @@ def settlement_process(file_name: str) -> dict:
     return order_dict
 
 if __name__ == '__main__':
-    deliver_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls"
-    order_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx"
-    pending_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx"
-    passwd = "b9cac4"
-    settlement_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-结算单.xlsx_182382610_1.xlsx"
-    # if len(sys.argv) < 4:
-    #     print(">>>>>缺少参数<<<<<")
-    #     print("参数格式如下：")
-    #     print("python KS01.py 物流表单.xls 订单表.xlsx 待结算.xlsx 订单密码")
-    #     exit(0)
-    # deliver_name = sys.argv[1]
-    # print("包裹: ", deliver_name)
-    # order_name = sys.argv[2]
-    # print("订单: ",order_name)
-    # pending_name = sys.argv[3]
-    # print("待结算", pending_name)
-    # passwd = sys.argv[4]
-    # print("订单密码: ", passwd)
+    # deliver_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-包裹-01.xls"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单管理-01.xlsx"
+    # pending_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-订单在途资金导出.xlsx_182366450_1-01.xlsx"
+    # passwd = "b9cac4"
+    # settlement_name = "/home/james/Documents/2025.2.20原始数据/KS/快手-善行-结算单.xlsx_182382610_1.xlsx"
+
+    # deliver_name = "/home/james/Documents/2025.3.4原始数据/快手-善行/善行-包裹中心.xls"
+    # order_name = "/home/james/Documents/2025.3.4原始数据/快手-善行/善行-订单管理-解压码：ecebaf.xlsx"
+    # pending_name = "/home/james/Documents/2025.3.4原始数据/快手-善行/善行-待结算.xlsx"
+    # passwd = "ecebaf"
+    # settlement_name = "/home/james/Documents/2025.3.4原始数据/快手-善行/善行-结算单.xlsx"
+    # sys.argv=["KS01.py", deliver_name, order_name, pending_name,passwd, settlement_name]
+
+    if len(sys.argv) < 5:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python KS01.py 物流表单.xls 订单表.xlsx 待结算.xlsx 订单密码 结算单.xlsx")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ",order_name)
+    pending_name = sys.argv[3]
+    print("待结算", pending_name)
+    passwd = sys.argv[4]
+    print("订单密码: ", passwd)
+
     result_dict = final_ks(deliver_name=deliver_name, order_name=order_name,
                            pending_name=pending_name, passwd=passwd)
 
@@ -223,17 +232,23 @@ if __name__ == '__main__':
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
     settlement_list = list()
-    settlement_d = settlement_process(file_name=settlement_name)
+
     order_list = df["订单编号"].to_list()
+    if len(sys.argv) == 6:
+        settlement_name = sys.argv[5]
+        print("结算单: ", settlement_name)
+        settlement_d = settlement_process(file_name=settlement_name)
+        settlement_order_list = list()
+        for order_num in order_list:
+            settlement_account = settlement_d.get(order_num)
+            if settlement_account is None:
+                pass
+            else:
+                for account in settlement_account:
+                    settlement_order_list.append(order_num)
+                    settlement_list.append(float(account))
 
-    settlement_order_list = list()
-    for order_num in order_list:
-        settlement_account = settlement_d.get(order_num)
-        if settlement_account is None:
-            pass
-        else:
-            settlement_order_list.append(order_num)
-            settlement_list.append(float(settlement_account[0]))
-
-    result_pd_0 = pd.DataFrame({"实际结算金额":settlement_list, "订单号":settlement_order_list})
-    print(f'实际结算金额 总额：{result_pd_0["实际结算金额"].sum()}')
+        result_pd_0 = pd.DataFrame({"实际结算金额":settlement_list, "订单号":settlement_order_list})
+        print(f'实际结算金额 总额：{result_pd_0["实际结算金额"].sum()}')
+    # for order in settlement_order_list:
+    #     print(order)

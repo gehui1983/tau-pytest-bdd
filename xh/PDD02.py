@@ -60,6 +60,7 @@ def is_float(s: str):
 # 包裹状态:"已派件", "已签收", "转运中", "已揽件"
 def deliver_fun(filepath_or_buffer: str) -> dict:
     encoding = detect_file_encoding(filepath_or_buffer)
+    print(encoding)
     delivery_pd = pd.read_csv(filepath_or_buffer = filepath_or_buffer, chunksize=2000, encoding=encoding,
                               dtype={"订单号": str, "包裹状态": str})
     deliver_dict = dict()
@@ -113,8 +114,8 @@ def order_fun(filepath_or_buffer: str) -> dict:
 
     return order_manager_dict
 
-def final_pdd(delivery_name:str, order_name:str) -> dict:
-    deliver_dict = deliver_fun(filepath_or_buffer=delivery_name)
+def final_pdd(deliver_name:str, order_name:str) -> dict:
+    deliver_dict = deliver_fun(filepath_or_buffer=deliver_name)
     order_dict = order_fun(filepath_or_buffer=order_name)
     inner_sets = order_dict.keys() & deliver_dict.keys()
 
@@ -180,7 +181,7 @@ def settlement_process(file_name:str) ->dict:
             expense_amount = str(row["支出金额（-元）"]).strip()
             if income_amount == "nan" or expense_amount == "nan":
                 continue
-            print(order, income_amount, expense_amount)
+            # print(order, income_amount, expense_amount)
 
             # if not is_float(income_amount):
             #     continue
@@ -193,20 +194,26 @@ def settlement_process(file_name:str) ->dict:
     return result_dict
 
 if __name__ == '__main__':
-    deliver_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
-    order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
-    settlement_name="/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-结算单.csv"
-    # if len(sys.argv) < 2:
-    #     print(">>>>>缺少参数<<<<<")
-    #     print("参数格式如下：")
-    #     print("python PDD.py 物流表单.csv 订单表.csv")
-    #     exit(0)
-    # deliver_name = sys.argv[1]
-    # print("包裹: ", deliver_name)
-    # order_name = sys.argv[2]
-    # print("订单: ",order_name)
+    # deliver_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
+    # settlement_name="/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-结算单.csv"
 
-    data_dict = final_pdd(delivery_name=deliver_name,
+    # deliver_name = "/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-包裹中心.csv"
+    # order_name = "/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-订单管理.csv"
+    # settlement_name="/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-结算单.csv"
+    # sys.argv=["PDD.py", deliver_name, order_name, settlement_name]
+
+    if len(sys.argv) < 3:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python PDD.py 物流表单.csv 订单表.csv 结算单.csv")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ",order_name)
+
+    data_dict = final_pdd(deliver_name=deliver_name,
                           order_name=order_name)
 
     df = pd.DataFrame(data_dict)
@@ -221,31 +228,33 @@ if __name__ == '__main__':
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
     # 结算金额
+    if len(sys.argv) == 4:
+        settlement_name = sys.argv[3]
+        print("结算单: ", settlement_name)
+        # 收入金额（+元）
+        income_amount_list = list()
+        # 支出金额（-元）
+        expense_amount_list = list()
+        settlement_d = settlement_process(file_name=settlement_name)
+        # print(settlement_d)
+        order_list = df["订单号"].to_list()
+        settlement_order_list = list()
+        for order_num in order_list:
+            settlement_account = settlement_d.get(order_num)
+            if settlement_account is None:
+                pass
+            else:
+                for t in settlement_account:
+                    income_amount, expense_amount = t
+                    settlement_order_list.append(order_num)
+                    income_amount_list.append(float(income_amount))
+                    expense_amount_list.append(float(expense_amount))
+                    print(order_num, income_amount, expense_amount)
 
-    # 收入金额（+元）
-    income_amount_list = list()
-    # 支出金额（-元）
-    expense_amount_list = list()
-    settlement_d = settlement_process(file_name=settlement_name)
-    # print(settlement_d)
-    order_list = df["订单号"].to_list()
-    settlement_order_list = list()
-    for order_num in order_list:
-        settlement_account = settlement_d.get(order_num)
-        if settlement_account is None:
-            pass
-        else:
 
-            for t in settlement_account:
-                income_amount, expense_amount = t
-                settlement_order_list.append(order_num)
-                income_amount_list.append(float(income_amount))
-                expense_amount_list.append(float(expense_amount))
+        result_pd_0 = pd.DataFrame({"订单号": settlement_order_list, "收入金额": income_amount_list, "支出金额":expense_amount_list})
 
-
-    result_pd_0 = pd.DataFrame({"订单号": settlement_order_list, "收入金额": income_amount_list, "支出金额":expense_amount_list})
-
-    income_amount_total = result_pd_0["收入金额"].sum()
-    expense_amount_total = result_pd_0["支出金额"].sum()
-    diff_amount_total = income_amount_total + expense_amount_total
-    print(f'实际结算， 收入金额：{income_amount_total}; 支出金额(元):{expense_amount_total}, 实际收入(元)：{diff_amount_total}')
+        income_amount_total = result_pd_0["收入金额"].sum()
+        expense_amount_total = result_pd_0["支出金额"].sum()
+        diff_amount_total = income_amount_total + expense_amount_total
+        print(f'实际结算， 收入金额：{income_amount_total}; 支出金额(元):{expense_amount_total}, 实际收入(元)：{diff_amount_total}')

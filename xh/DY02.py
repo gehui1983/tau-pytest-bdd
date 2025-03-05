@@ -192,24 +192,32 @@ def settlement_process(file_name:str) ->dict:
             else:
                 assert isinstance(value,list)
                 value.append(account)
+    # print(result_dict.keys())
     return result_dict
 
 if __name__ == '__main__':
-    deliver_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx"
-    order_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv"
-    pending_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv"
-    settlement_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-结算单.csv"
-    # if len(sys.argv) < 3:
-    #     print(">>>>>缺少参数<<<<<")
-    #     print("参数格式如下：")
-    #     print("python DY01.py 物流表单.xlsx 订单表.csv 待结算.csv")
-    #     exit(0)
-    # deliver_name = sys.argv[1]
-    # print("包裹: ", deliver_name)
-    # order_name = sys.argv[2]
-    # print("订单: ", order_name)
-    # pending_name = sys.argv[3]
-    # print("待结算", pending_name)
+    # deliver_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-包裹中心导出-2025-02-20 11-15-41.xlsx"
+    # order_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-订单管理.csv"
+    # pending_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-待结算.csv"
+    # settlement_name = "/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-结算单.csv"
+
+    # deliver_name = "/home/james/Documents/2025.3.4原始数据/抖音-百肤邦/百肤邦-包裹中心.xlsx"
+    # order_name = "/home/james/Documents/2025.3.4原始数据/抖音-百肤邦/百肤邦-订单管理-解压码-j2bZqD.csv"
+    # pending_name = "/home/james/Documents/2025.3.4原始数据/抖音-百肤邦/百肤邦-待结算在途.csv"
+    # settlement_name = "/home/james/Documents/2025.3.4原始数据/抖音-百肤邦/百肤邦-结算单.csv"
+    # sys.argv=["DY01.py", deliver_name, order_name, pending_name, settlement_name]
+    if len(sys.argv) < 4:
+        print(">>>>>缺少参数<<<<<")
+        print("参数格式如下：")
+        print("python DY01.py 物流表单.xlsx 订单表.csv 待结算.csv 结算单.csv")
+        exit(0)
+    deliver_name = sys.argv[1]
+    print("包裹: ", deliver_name)
+    order_name = sys.argv[2]
+    print("订单: ", order_name)
+    pending_name = sys.argv[3]
+    print("待结算", pending_name)
+
 
     result_dict = final_dy(deliver_name=deliver_name, order_name=order_name, pending_name=pending_name)
 
@@ -224,18 +232,26 @@ if __name__ == '__main__':
     print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
-    # 结算金额
-    settlement_list = list()
-    settlement_d = settlement_process(file_name=settlement_name)
-    order_list = df["订单编号"].to_list()
-    settlement_order_list = list()
-    for order_num in order_list:
-        settlement_account = settlement_d.get(order_num)
-        if settlement_account is None:
-            pass
-        else:
-            settlement_order_list.append(order_num)
-            settlement_list.append(float(settlement_account[0]))
+    if len(sys.argv) == 5:
+        # 结算金额
+        settlement_name = sys.argv[4]
+        print("结算单: ", settlement_name)
+        settlement_list = list()
+        settlement_d = settlement_process(file_name=settlement_name)
+        order_list = df["订单编号"].to_list()
+        # print(order_list)
+        settlement_order_list = list()
+        for order_num in order_list:
+            settlement_account = settlement_d.get(order_num)
+            if settlement_account is None:
+                pass
+            else:
+                for account in settlement_account:
+                    settlement_order_list.append(order_num)
+                    settlement_list.append(float(account))
 
-    result_pd_0 = pd.DataFrame({"实际结算金额":settlement_list, "订单号":settlement_order_list})
-    print(f'实际结算金额 总额：{result_pd_0["实际结算金额"].sum()}')
+        result_pd_0 = pd.DataFrame({"实际结算金额":settlement_list, "订单号":settlement_order_list})
+        print(f'实际结算金额 总额：{result_pd_0["实际结算金额"].sum()}')
+        # print(settlement_order_list)
+        # for ss in settlement_order_list:
+        #     print(ss)
