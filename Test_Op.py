@@ -241,4 +241,4 @@ if __name__ == '__main__':
     #     print(result)
     data = settlement_process(file_name="/home/james/Documents/2025.2.20原始数据/DY/抖音-百肤邦-结算单.csv")
     print(data)
-# python DY02.py /home/james/Documents/百肤邦3.10原始数据/包裹中心导出-2025-03-10_10-39-54.xlsx /home/james/Documents/百肤邦3.10原始数据/订单管理-解压码：p9Ae8L.csv /home/james/Documents/百肤邦3.10原始数据/待结算.csv
+# python DY01.py /home/james/Documents/百肤邦3.10原始数据/包裹中心导出-2025-03-10_10-39-54.xlsx /home/james/Documents/百肤邦3.10原始数据/订单管理-解压码：p9Ae8L.csv /home/james/Documents/百肤邦3.10原始数据/待结算.csv

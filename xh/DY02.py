@@ -117,16 +117,12 @@ def final_dy(deliver_name:str, order_name:str, pending_name:str) -> dict:
     # dtype = {"订单编号": str, "发货时间": str, "包裹状态": str})
     deliver_d = deliver_fun(file_name=deliver_name)
     deliver_set = deliver_d.keys()
-    print(deliver_set)
     # dtype = {"子订单编号": str, "预计结算金额": str}
     pending_d = pending_settlement(file_name=pending_name)
     pending_set = pending_d.keys()
     # dtype = {"子订单编号": str, "售后状态": str}
     order_d = order_management(file_name=order_name)
-
-
     order_set = order_d.keys()
-    print(order_set)
 
     inner_set = deliver_set & pending_set & order_set
     # print(inner_set)
@@ -234,7 +230,7 @@ if __name__ == '__main__':
         "金额": list(su.values)
     }
     result_pd = pd.DataFrame(result)
-    # print(result_pd)
+    print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
     if len(sys.argv) == 5:
@@ -257,6 +253,3 @@ if __name__ == '__main__':
 
         result_pd_0 = pd.DataFrame({"实际结算金额":settlement_list, "订单号":settlement_order_list})
         print(f'实际结算金额 总额：{result_pd_0["实际结算金额"].sum()}')
-        # print(settlement_order_list)
-        # for ss in settlement_order_list:
-        #     print(ss)
