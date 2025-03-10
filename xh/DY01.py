@@ -47,7 +47,9 @@ def deliver_fun(file_name: str) -> dict:
         index, row = t
         orders = str(row["订单编号"]).split(",")
         date = str(row["发货时间"]).split(" ")[0].strip()
-        package_status = str(row["包裹状态"])
+        package_status = str(row["包裹状态"]).strip()
+        if package_status == "nan":
+            package_status = ""
         if package_status in ["", '待取件', '派送中', '已揽收待中转', '已签收', '已中转待派件']:
             for order in orders:
                 values = deliver_dict.get(order)

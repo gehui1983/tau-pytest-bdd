@@ -194,14 +194,14 @@ def settlement_process(file_name:str) ->dict:
     return result_dict
 
 if __name__ == '__main__':
-    # deliver_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
-    # order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
+    deliver_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-包裹中心-01.csv"
+    order_name = "/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-订单管理-01.csv"
     # settlement_name="/home/james/Documents/2025.2.20原始数据/PDD/拼多多-百肤邦-结算单.csv"
 
     # deliver_name = "/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-包裹中心.csv"
     # order_name = "/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-订单管理.csv"
-    # settlement_name="/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-结算单.csv"
-    # sys.argv=["PDD.py", deliver_name, order_name, settlement_name]
+    settlement_name="/home/james/Documents/2025.3.4原始数据/拼多多-海乐威/海乐威-结算单.csv"
+    sys.argv=["PDD.py", deliver_name, order_name, settlement_name]
 
     if len(sys.argv) < 3:
         print(">>>>>缺少参数<<<<<")
@@ -249,7 +249,7 @@ if __name__ == '__main__':
                     settlement_order_list.append(order_num)
                     income_amount_list.append(float(income_amount))
                     expense_amount_list.append(float(expense_amount))
-                    print(order_num, income_amount, expense_amount)
+                    print(f"{order_num},{income_amount},{expense_amount}")
 
 
         result_pd_0 = pd.DataFrame({"订单号": settlement_order_list, "收入金额": income_amount_list, "支出金额":expense_amount_list})

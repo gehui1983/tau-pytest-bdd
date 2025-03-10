@@ -47,10 +47,12 @@ def deliver_fun(file_name: str) -> dict:
         index, row = t
         orders = str(row["订单编号"]).split(",")
         date = str(row["发货时间"]).split(" ")[0].strip()
-        package_status = str(row["包裹状态"])
+        package_status = str(row["包裹状态"]).strip()
+        if package_status == "nan":
+            package_status = ""
         if package_status in ["", '待取件', '派送中', '已揽收待中转', '已签收', '已中转待派件']:
             for order in orders:
-                values = deliver_dict.get(order)
+                values = deliver_dict.get(order.strip())
                 if values is None:
                     deliver_dict.setdefault(order,[(date, package_status)])
                 else:
@@ -115,6 +117,7 @@ def final_dy(deliver_name:str, order_name:str, pending_name:str) -> dict:
     # dtype = {"订单编号": str, "发货时间": str, "包裹状态": str})
     deliver_d = deliver_fun(file_name=deliver_name)
     deliver_set = deliver_d.keys()
+    print(deliver_set)
     # dtype = {"子订单编号": str, "预计结算金额": str}
     pending_d = pending_settlement(file_name=pending_name)
     pending_set = pending_d.keys()
@@ -123,8 +126,10 @@ def final_dy(deliver_name:str, order_name:str, pending_name:str) -> dict:
 
 
     order_set = order_d.keys()
+    print(order_set)
 
     inner_set = deliver_set & pending_set & order_set
+    # print(inner_set)
 
     # 订单编号
     order_list = list()
@@ -229,7 +234,7 @@ if __name__ == '__main__':
         "金额": list(su.values)
     }
     result_pd = pd.DataFrame(result)
-    print(result_pd)
+    # print(result_pd)
     print(f"预计结算金额 总额: {result_pd['金额'].sum()}")
 
     if len(sys.argv) == 5:

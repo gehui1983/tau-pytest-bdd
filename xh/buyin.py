@@ -97,7 +97,7 @@ class BuyIn:
 
     def sql_execute_02(self,host="192.168.3.145", crawl_data_id=11803):
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE id = %s'''
-        conn = mysql.connect(host="127.0.0.1", port=3306, user='admin',
+        conn = mysql.connect(host=host, port=3306, user='admin',
                              password='admin', database="CRAWL_DB")
         cur = conn.cursor()
         try:
@@ -165,10 +165,10 @@ class BuyIn:
 
 if __name__ == '__main__':
     buy = BuyIn()
-    # buy.source_to_target(crawl_data_id=14026)
-    buy.clean_data(crawl_data_id=24510)
+    # buy.source_to_target(crawl_data_id=33569)
+    buy.clean_data(crawl_data_id=44053)
 
-    # buy.sql_execute_02(crawl_data_id=11802)
+    # buy.sql_execute_02(crawl_data_id=21078)
 
 # SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 19739;
 # select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
@@ -185,8 +185,8 @@ if __name__ == '__main__':
 # select MAX(bi.source_id) from CRAWL_DB.BUY_IN_01 bi;
 
 
-# 最大店铺数量：8778
-# -- source_id:25520
+# 最大店铺数量：14282
+# -- source_id: 50219
 # -- 1, source_id=1, 爬取=9348条，增加店铺数量：5679-0=5679
 #       无法执行 [254, 415, 502, 621, 865, 878, 882, 901, 902, 912, 914, 915, 916, 917, 919, 921, 923, 924, 926, 927, 929, 931, 932, 935, 936, 937, 999, 2522, 2585, 2619, 2687, 3688, 4114, 4145, 4822, 7394, 7885, 8011, 8016, 8041]
 # --3, source_id=1  爬取=3186条，增加店铺数量：6815-5679=1136
@@ -198,4 +198,26 @@ if __name__ == '__main__':
 # 无法执行  [19719, 20497, 22350, 23539, 23784]
 # --5, source_id=25520  爬取=1010条，增加店铺数量：8778-8590=188
 # 无法执行  [25086, 25253, 25275, 25332]
-# 192.168.3.145   max(id) = 15036
+
+# --6, source_id=31462  爬取=5942条，时间：835分钟，增加店铺数量：10472-8778=1694
+# [25868, 26050, 29778, 30715, 31339]
+
+# --7, source_id=36732  爬取=5270条，时间：821分钟，增加店铺数量：12058-10472 = 1586
+# [31486, 32004, 33121, 33527, 33792, 34452, 34554, 34904, 35311, 35809, 36591, 36604]
+
+# --8, source_id=44053  爬取=7321条，时间：1077分钟，增加店铺数量：13218-12058 = 1160
+# [31486, 32004, 33121, 33527, 33792, 34452, 34554, 34904, 35311, 35809, 36591,
+# 36604, 36755, 37385, 37646, 37978, 38517, 39912, 40061, 40224, 40229, 40393,
+# 40459, 40490, 41464, 42002, 42389, 42659, 42891, 43599, 43901]
+
+# --9, source_id=50219  爬取=6166条，时间：966分钟，增加店铺数量：14282-13218 = 1064
+# [48847, 49711]
+
+
+# 192.168.3.145   max(id) = 39735
+
+
+# 抖音，快手，拼多多，多多买菜，美团优选
+# 拼多多
+# https://pdd.dianba6.com/productDetail?id=336403017810
+# 月交易额 50w以上
