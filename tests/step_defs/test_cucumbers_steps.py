@@ -15,7 +15,8 @@ CONVERTERS = {
     parsers.parse('the basket has "{initial}" cucumbers'),
     target_fixture='basket',
     converters=CONVERTERS)
-def basket(initial):
+def basket(initial, log):
+    log.info("Hell")
     return CucumberBasket(initial_count=initial)
 
 

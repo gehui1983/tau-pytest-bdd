@@ -5,6 +5,9 @@ from selenium import webdriver
 from selenium.webdriver import Proxy
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.proxy import ProxyType
+
+from common import logger
+
 DUCKDUCKGO_HOME = 'https://duckduckgo.com/'
 
 
@@ -64,3 +67,7 @@ def chrome_browser():
         driver.maximize_window()
         driver.implicitly_wait(time_to_wait=3.0)
         yield driver
+
+@pytest.fixture
+def log():
+    return logger

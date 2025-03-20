@@ -1,5 +1,7 @@
 from pytest_bdd import scenarios, given, parsers, when, then, scenario
 
+
+
 scenarios('../features/eating.feature')
 
 
@@ -9,7 +11,8 @@ def Outlined_01():
 
 
 @given(parsers.parse("there are {start:d} cucumbers"), target_fixture="cucumbers")
-def given_cucumbers(start):
+def given_cucumbers(start, log):
+    log.info("hello")
     return {"start": start, "eat": 0}
 
 
