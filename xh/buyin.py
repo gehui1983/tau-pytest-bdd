@@ -4,7 +4,111 @@ import pymysql as mysql
 
 
 class BuyIn:
+    # CRAWL_DB.CRAWL_DATA.id > 50219
+    def clean_data_01(self, crawl_data_id=0):
+        no_decode_list = list()
+        sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id > %s'''
+        sql_insert = '''INSERT INTO CRAWL_DB.BUY_IN (source_id,shop_id, shop_name,exp_score,product_id, title, 
+                        detail_url, recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio, 
+                        kol_num, axis, promotion_id, commodity_id) VALUES 
+                (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
+        path = '/pc/selection/common/material_list'
+        conn = mysql.connect(host="127.0.0.1", port=3306, user='admin',
+                             password='admin', database="CRAWL_DB")
+        cur = conn.cursor()
+        try:
+            cur.execute(sql_select, [path, crawl_data_id])
+            res = cur.fetchall()
+            for r in res:
+                ids, response_body = r
+                source_id = ids
+                print(source_id)
+                try:
+                    compressed_data = brotli.decompress(response_body)
+                except brotli.error:
+                    no_decode_list.append(source_id)
+                    continue
+                res_str = compressed_data.decode("utf-8")
+                list_values = list()
+                res_json = json.loads(res_str)
+                print(res_json)
+                for dict_res in res_json['data']["summary_promotions"]:
+                    print(dict_res)
+                    shop_info = dict_res['base_model']['shop_info']
+                    shop_id = str(shop_info['shop_id'])
+                    shop_name = ''
+                    try:
+                        shop_name = shop_info['shop_name']
+                    except KeyError:
+                        pass
+                    try:
+                        exp_score = shop_info['shop_score_info']["shop_score"]["score"]
+                    except KeyError:
+                        exp_score = 0
+                    product_id = dict_res['product_id']
+                    promotion_id = dict_res['promotion_id']
+                    commodity_id = ''
+                    try:
+                        commodity_id = dict_res['extend_info']['data_report']['commodity_id']
+                    except KeyError:
+                        commodity_id = promotion_id
+                    base_info = dict_res['base_model']
+                    title = base_info['product_info']['name']
+                    detail_url = base_info['product_info']['detail_url']
+                    recommend_reason = ''
+                    try:
+                        recommend_reason = dict_res['extend_info']['data_report']['recommend_reason_text']
+                    except KeyError:
+                        try:
+                            recommend_reason = dict_res['custom_model']['selection_square_model']['recommend_info']['recommend_reason']['recommend_reason']['text']
+                        except KeyError:
+                            pass
+                    price = dict_res['base_model']['marketing_info']['price_desc']['price']['origin']
+                    cos_fee =0
+                    cos_ratio = 0
+                    try:
+                        cos_info = dict_res['base_model']['promotion_info']['cos_info']
+                        cos_fee = cos_info['cos']['cos_fee']['origin']
+                        cos_ratio = cos_info['cos']['cos_ratio']['origin']
+                        cos_type = cos_info['cos_type']
+                    except KeyError:
+                        cos_type = -1
+                    kol_num = 0
+                    try:
+                        manage_info = dict_res['base_model']['promotion_info']['cooper_author_num']
+                        sales = manage_info['origin']
+                        kol_num = sales
+                    except KeyError:
+                        pass
+
+                    good_ratio = ''
+                    try:
+                        good_ratio = dict_res['base_model']['product_info']['good_ratio']['origin']
+                    except KeyError:
+                        pass
+
+                    try:
+                        axis = str(dict_res['base_model']['product_info']['sale_axis'])
+                    except KeyError:
+                        pass
+                    list_values.append((source_id, shop_id, shop_name, exp_score, product_id, title, detail_url,
+                                        recommend_reason, price, cos_fee, cos_ratio, cos_type, sales, good_ratio,
+                                        kol_num, axis, promotion_id, commodity_id))
+                    print(list_values)
+                cur.executemany(sql_insert, list_values)
+                cur.connection.commit()
+                # break
+
+        except mysql.MySQLError as e:
+            print(e.args)
+        finally:
+            cur.close()
+            conn.close()
+            print("执行完毕")
+            print(no_decode_list)
+
+    # CRAWL_DB.CRAWL_DATA.id<=50219
     def clean_data(self, crawl_data_id=0):
         no_decode_list = list()
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE path = %s and id > %s'''
@@ -32,6 +136,7 @@ class BuyIn:
                 res_str = compressed_data.decode("utf-8")
                 list_values = list()
                 res_json = json.loads(res_str)
+                print(res_json)
                 for dict_res in res_json['data']["promotions"]:
                     print(dict_res)
                     shop_info = dict_res['shop_info']
@@ -95,7 +200,7 @@ class BuyIn:
             print("执行完毕")
             print(no_decode_list)
 
-    def sql_execute_02(self,host="192.168.3.145", crawl_data_id=11803):
+    def sql_execute_02(self,host="127.0.0.1", crawl_data_id=50219):
         sql_select = '''SELECT id, response_body from CRAWL_DB.CRAWL_DATA WHERE id = %s'''
         conn = mysql.connect(host=host, port=3306, user='admin',
                              password='admin', database="CRAWL_DB")
@@ -109,7 +214,9 @@ class BuyIn:
                 # print(response_body)
                 try:
                     compressed_data = brotli.decompress(response_body)
-                    print(compressed_data)
+                    # print(compressed_data)
+                    res_json = json.loads(compressed_data)
+                    print(json.dumps(res_json,ensure_ascii=False,indent=4))
                 except brotli.error:
                     print("解压失败")
                     print(brotli.error.args)
@@ -165,10 +272,11 @@ class BuyIn:
 
 if __name__ == '__main__':
     buy = BuyIn()
-    # buy.source_to_target(crawl_data_id=33569)
-    buy.clean_data(crawl_data_id=44053)
+    buy.clean_data_01(crawl_data_id=54287)
+    # buy.source_to_target(crawl_data_id=50219)
+    # buy.clean_data(crawl_data_id=50219)
 
-    # buy.sql_execute_02(crawl_data_id=21078)
+    # buy.sql_execute_02(crawl_data_id=50473)
 
 # SELECT COUNT(*) from CRAWL_DB.CRAWL_DATA WHERE `path`='/pc/selection/common/material_list' and id > 19739;
 # select count(*) from (SELECT COUNT(bi.shop_id)as count, bi.shop_id from BUY_IN bi group by bi.shop_id) a;
@@ -213,8 +321,8 @@ if __name__ == '__main__':
 # --9, source_id=50219  爬取=6166条，时间：966分钟，增加店铺数量：14282-13218 = 1064
 # [48847, 49711]
 
-
-# 192.168.3.145   max(id) = 39735
+# --10, source_id=65760  爬取=15541条，时间：XXX分钟，增加店铺数量：18941-14282 =4659
+# 192.168.3.145   max(id) = 65760
 
 
 # 抖音，快手，拼多多，多多买菜，美团优选
