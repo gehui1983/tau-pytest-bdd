@@ -32,7 +32,6 @@ MANIFEST
 *.spec
 
 # Installer logs
-*.txt
 
 # Unit test / coverage reports
 htmlcov/

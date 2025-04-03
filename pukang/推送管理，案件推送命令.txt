@@ -1,0 +1,92 @@
+中邮推送：
+curl -H "Content-Type: application/json" -X POST -d '["244200058001"]' "http://localhost:8860/chinaPost/claimResultPush"
+
+太保财推送：
+curl -H "Content-Type: application/json" -X POST -d '["244300157001"]' "http://localhost:8859/tbc/pushClaim"
+
+鼎和推送代码
+curl -H "Content-Type: application/json" -X POST -d '["245100209001"]' "http://localhost:8861/edhic/firstAuditPassPush"
+
+瑞泰推送：
+curl -H "Content-Type: application/json" -X POST -d '["244400133001"]' "http://localhost:8857/pukang-rt/claimPush/claimPush"
+
+
+英大推送代码：
+案件从直付同步到tpa：
+curl -X POST http://localhost:8862/claimInfoSync/sendDataToTpa -d '["20240806000001"]' --header "Content-Type: application/json"
+02类型：
+curl http://localhost:8862/claimAudit/claimReviewSucceed -X POST -d '["244300199004"]' --header "Content-Type: application/json"
+打包影像件：
+curl -X POST http://localhost:8862/claimInfoSync/exportFileToFtp
+curl -X POST http://localhost:8862/claimInfoSync/exportOfflineClaimFileToFtp
+03类型：
+curl http://localhost:8862/claimAudit/claimClose -X POST -d '{"claimCode": "244300176002", "claimAmount": 0.0}' --header "Content-Type: application/json"
+
+
+中华联合推送命令（浏览器执行）：
+http://cic-test.pukangpay.com.cn/cic/sendClaimToCIC?claimCode=244500030001
+
+
+
+
+
+人保寿推送：
+影像件（步骤1）：
+curl -H "Content-Type: application/json" -X POST -d '{"claimCodes":["254200011001"]}' "http://localhost:8854/picc/imagePush"
+理算信息（步骤2）：
+curl -H "Content-Type: application/json" -X POST -d '["254200011001"]' "http://localhost:8854/picc/scanClaim"
+
+
+河南英大H5页面(快速理赔页面）：
+https://pk-pl-h5-test.pukangbao.com/expense-report?cardCode=2142132400000002&signMD5=231dec5c8c05692a8e037a2d4c4075e3
+
+
+天安案件推送：
+http://taic-test.pukangpay.com.cn/taic/claimPush?claimCode=240100060001
+
+太保财案件推送：
+curl http://localhost:8859/tbc/pushClaim -X POST -d '["244600001001","244600002001"]' --header "Content-Type: application/json"
+
+瑞泰推送（209）
+curl -H "Content-Type: application/json" -X POST -d '["244600071001"]' "http://localhost:8857/pukang-rt/claimPush/claimPush"
+sendClaimApplyData
+curl -H "Content-Type: application/json" -X POST -d '["244600071001"]' "http://localhost:8857/pukang-rt/sendClaimApplyData"
+
+长江财推送：
+http://cjbx-test.pukangpay.com.cn/cjbx/autoClaim?claimCode=244400130001
+
+中银保推送（code为赔案号）：
+https://pk-bocins-test.pukangbao.com/trans/test?insurance=%E4%B8%AD%E9%93%B6%E4%BF%9D%E9%99%A9%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8%E6%B1%9F%E8%A5%BF%E5%88%86%E5%85%AC%E5%8F%B8&code=244700057001
+
+
+太保寿推送：（209）
+curl -X POST \
+  http://127.0.0.1:18866/TBTPAProxy/tpa/packageOverClaimByClaimCodes \
+  -H "Content-Type: multipart/form-data" \
+  -F "userCode=test02" \
+  -F "password=888888" \
+  -F "claimCodeStrs=254300033001"
+
+
+太保财上海( 209   服务：test_tbc，服务器路径：/usr/local/TBCService)——需要把tb_over_claim表中的claim_tpa_status、tbClaimStatus两个字段改成2
+并且claim_branch_code公司码值需要在tb_branch中并保持一致
+推送命令：http://testtbc.pukangbao.com/pukang-tbc/tbcTask/senCaseReportTask?claimCodes=245200049001
+
+
+人保寿北京/遵义版本：
+curl --location 'http://localhost:8854/picc/imagePush/' \
+--header 'Content-Type: application/json' \
+--header 'Cookie: token=38beff75248d49a08ad41923e8000973' \
+--data '{
+    "claimCodes": [
+        "254200021001"
+    ],
+    "provinceName":"BeiJing", "branchName":"北京市分公司"
+}'
+
+
+
+
+永诚：
+https://pk-yc-test.pukangbao.com/overClaim/pushTask?claimCode=254300015001
+
